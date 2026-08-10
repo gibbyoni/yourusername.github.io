@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stepbrief Portal Clone</title>
+  <style>
+    /* CSS Variables for Clean Theme Switching */
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #111111;
+      --text-muted: #555555;
+      --border-color: #222222;
+      --card-bg: #fdfdfd;
+      --link-color: #0044cc;
+      --link-hover: #002288;
+      --accent-color: #000000;
+      --input-bg: #ffffff;
+      --input-text: #111111;
+    }
+
+    /* Dark Mode Theme */
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --text-muted: #aaaaaa;
+      --border-color: #444444;
+      --card-bg: #1e1e1e;
+      --link-color: #66b2ff;
+      --link-hover: #99ccff;
+      --accent-color: #ffffff;
+      --input-bg: #2d2d2d;
+      --input-text: #ffffff;
+    }
+
+    /* Tactical Red Mode (Aviation/Night-Vision Friendly) */
+    [data-theme="tactical"] {
+      --bg-color: #050000;
+      --text-color: #ff3333;
+      --text-muted: #aa0000;
+      --border-color: #aa0000;
+      --card-bg: #100000;
+      --link-color: #ff6666;
+      --link-hover: #ff9999;
+      --accent-color: #ff3333;
+      --input-bg: #1a0000;
+      --input-text: #ff3333;
+    }
+
+    /* Global Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.4;
+      padding: 15px;
+      transition: background-color 0.15s, color 0.15s;
+    }
+
+    /* Header & Layout Structure */
+    header {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .brand-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    /* Clock Widget */
+    .clock-container {
+      font-family: monospace;
+      font-size: 0.9rem;
+      text-align: right;
+    }
+
+    .clock-row {
+      display: block;
+    }
+
+    /* Utility Bar: Search & Themes */
+    .utility-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex-grow: 1;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      border: 1px solid var(--border-color);
+      background-color: var(--input-bg);
+      color: var(--input-text);
+      outline: none;
+    }
+
+    .theme-selectors {
+      display: flex;
+      gap: 5px;
+    }
+
+    .theme-btn {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+
+    .theme-btn.active {
+      background-color: var(--accent-color);
+      color: var(--bg-color);
+    }
+
+    /* Grid Layout for Links */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .category-card {
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      padding: 12px;
+    }
+
+    .category-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .link-list {
+      list-style: none;
+    }
+
+    .link-item {
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+
+    .link-item a {
+      text-decoration: none;
+      color: var(--link-color);
+    }
+
+    .link-item a:hover {
+      text-decoration: underline;
+      color: var(--link-hover);
+    }
+
+    .link-description {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Footer & Changelog */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 15px;
+      margin-top: 40px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .changelog-section {
+      margin-top: 10px;
+    }
+
+    .changelog-item {
+      margin-bottom: 4px;
+      font-family: monospace;
+    }
+
+    /* Print styling */
+    @media print {
+      body { background: white !important; color: black !important; }
+      .utility-bar { display: none; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <header>
+    <div class="header-top">
+      <div class="brand-title">StepBrief // Portal</div>
+      <div class="clock-container">
+        <span class="clock-row">LOC: <span id="clock-local">00:00:00</span></span>
+        <span class="clock-row">ZULU: <span id="clock-zulu">00:00:00 Z</span></span>
+      </div>
+    </div>
+
+    <div class="utility-bar">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search links or commands (e.g., Wx, METAR)..." autocomplete="off">
+      </div>
+      <div class="theme-selectors">
+        <button class="theme-btn" onclick="setTheme('light')" id="btn-light">LIGHT</button>
+        <button class="theme-btn active" onclick="setTheme('dark')" id="btn-dark">DARK</button>
+        <button class="theme-btn" onclick="setTheme('tactical')" id="btn-tactical">TACTICAL</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-grid">
+    
+    <!-- Column 1: Pre-Flight -->
+    <div class="category-card" data-category="pre-flight">
+      <div class="category-title">Pre-Flight Brief</div>
+      <ul class="link-list">
+        <li class="link-item">
+          <a href="https://www.notams.aim.faa.gov/notamMap/SearchNOTAM.html" target="_blank">FAA NOTAM Search</a>
+          <span class="link-description">Real-time airspace restrictions</span>
+        </li>
+        <li class="link-item">
+          <a href="https://dins.aim.faa.gov/dins" target="_blank">DINS NOTAMs</a>
+          <span class="link-description">Defense Internet NOTAM Service</span>
+        </li>
+        <li class="link-item">
+          <a href="https://www.milplanner.com" target="_blank">MilPlanner</a>
+          <span class="link-description">Military flight planning assistant</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Column 2: Weather & Environmental -->
+    <div class="category-card" data-category="weather">
+      <div class="category-title">Weather (Wx)</div>
+      <ul class="link-list">
+        <li class="link-item">
+          <a href="https://www.aviationweather.gov/" target="_blank">Aviation Weather Center</a>
+          <span class="link-description">METARs, TAFs, and Sigmets</span>
+        </li>
+        <li class="link-item">
+          <a href="https://www.fnmoc.navy.mil/" target="_blank">FNMOC Weather</a>
+          <span class="link-description">Navy meteorology portal</span>
+        </li>
+        <li class="link-item">
+          <a href="https://radar.weather.gov/" target="_blank">NWS Doppler Radar</a>
+          <span class="link-description">Live national radar mosaic</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Column 3: Flight Publications -->
+    <div class="category-card" data-category="pubs">
+      <div class="category-title">Flight Publications</div>
+      <ul class="link-list">
+        <li class="link-item">
+          <a href="https://www.faa.gov/air_traffic/publications/" target="_blank">FAA Jo Publications</a>
+          <span class="link-description">7110.65, AIM, and Enroute guides</span>
+        </li>
+        <li class="link-item">
+          <a href="https://www.nga.mil/" target="_blank">NGA Aero App</a>
+          <span class="link-description">DoD flight charts & FLIPs</span>
+        </li>
+        <li class="link-item">
+          <a href="https://skyvector.com/" target="_blank">SkyVector</a>
+          <span class="link-description">VFR/IFR Aeronautical charts</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Column 4: Post-Flight & Logging -->
+    <div class="category-card" data-category="post-flight">
+      <div class="category-title">Post-Flight & Logs</div>
+      <ul class="link-list">
+        <li class="link-item">
+          <a href="#" target="_blank">GDSS Logins</a>
+          <span class="link-description">Global Decision Support System</span>
+        </li>
+        <li class="link-item">
+          <a href="#" target="_blank">MIPS / SHARP</a>
+          <span class="link-description">Logbooks and flight tracking</span>
+        </li>
+        <li class="link-item">
+          <a href="#" target="_blank">Safety Reporting (ASAP)</a>
+          <span class="link-description">Aviation Safety Action Program</span>
+        </li>
+      </ul>
+    </div>
+
+  </main>
+
+  <footer>
+    <div>Contact Portal Administrator: <strong>ops-support@stepbrief.net</strong></div>
+    <div class="changelog-section">
+      <strong>Changelog:</strong>
+      <div class="changelog-item">2026-08-20 - Added Tactical Red theme toggle for night operations.</div>
+      <div class="changelog-item">2026-08-15 - Implemented instant keypress-based search filters.</div>
+      <div class="changelog-item">2026-08-01 - Initial deployment of the minimalist portal grid.</div>
+    </div>
+  </footer>
+
+  <script>
+    // Real-Time Clock Functionality
+    function updateClocks() {
+      const now = new Date();
+      
+      // Local Time
+      const locHours = String(now.getHours()).padStart(2, '0');
+      const locMins = String(now.getMinutes()).padStart(2, '0');
+      const locSecs = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clock-local').textContent = `${locHours}:${locMins}:${locSecs}`;
+
+      // Zulu/UTC Time
+      const zuluHours = String(now.getUTCHours()).padStart(2, '0');
+      const zuluMins = String(now.getUTCMinutes()).padStart(2, '0');
+      const zuluSecs = String(now.getUTCSeconds()).padStart(2, '0');
+      document.getElementById('clock-zulu').textContent = `${zuluHours}:${zuluMins}:${zuluSecs} Z`;
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks(); // Initial Call
+
+    // Theme Switching Engine
+    function setTheme(themeName) {
+      document.body.setAttribute('data-theme', themeName);
+      
+      // Update Active State on Buttons
+      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${themeName}`).classList.add('active');
+      
+      // Save theme preference locally
+      localStorage.setItem('preferred-theme', themeName);
+    }
+
+    // Load Saved Theme Preference on Load
+    const savedTheme = localStorage.getItem('preferred-theme') || 'dark';
+    setTheme(savedTheme);
+
+    // Instant Search/Filtering logic
+    document.getElementById('search-input').addEventListener('input', function(e) {
+      const query = e.target.value.toLowerCase().trim();
+      const categories = document.querySelectorAll('.category-card');
+
+      categories.forEach(card => {
+        let hasVisibleLink = false;
+        const links = card.querySelectorAll('.link-item');
+
+        links.forEach(link => {
+          const text = link.textContent.toLowerCase();
+          if (text.includes(query)) {
+            link.style.display = '';
+            hasVisibleLink = true;
+          } else {
+            link.style.display = 'none';
+          }
+        });
+
+        // Hide the whole card category if no links inside match the query
+        if (hasVisibleLink || query === '') {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
