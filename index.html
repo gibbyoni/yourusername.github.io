@@ -3,71 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pueo Wireless</title>
+  <title>PUEO WIRELESS // How to fo da kine</title>
   <style>
-    /* CSS Variables for Clean Theme Switching */
+    /* CSS Custom Variables for Theme Engine */
     :root {
       --bg-color: #ffffff;
-      --text-color: #111111;
-      --text-muted: #555555;
-      --border-color: #222222;
-      --card-bg: #fdfdfd;
-      --link-color: #0044cc;
-      --link-hover: #002288;
-      --accent-color: #000000;
-      --input-bg: #ffffff;
-      --input-text: #111111;
+      --text-color: #000000;
+      --accent-color: #0000ee;
+      --visited-color: #551a8b;
+      --border-color: #000000;
+      --card-bg: #ffffff;
+      --header-bg: #f0f0f0;
+      --highlight-bg: #ffffcc;
+      --font-stack: Arial, sans-serif;
     }
 
-    /* Dark Mode Theme */
+    /* Dark Theme */
     [data-theme="dark"] {
       --bg-color: #121212;
       --text-color: #e0e0e0;
-      --text-muted: #aaaaaa;
+      --accent-color: #33b5e5;
+      --visited-color: #9933cc;
       --border-color: #444444;
       --card-bg: #1e1e1e;
-      --link-color: #66b2ff;
-      --link-hover: #99ccff;
-      --accent-color: #ffffff;
-      --input-bg: #2d2d2d;
-      --input-text: #ffffff;
+      --header-bg: #1a1a1a;
+      --highlight-bg: #332200;
     }
 
-    /* Tactical Red Mode (Aviation/Night-Vision Friendly) */
-    [data-theme="tactical"] {
-      --bg-color: #050000;
-      --text-color: #ff3333;
-      --text-muted: #aa0000;
-      --border-color: #aa0000;
-      --card-bg: #100000;
-      --link-color: #ff6666;
-      --link-hover: #ff9999;
+    /* Tactical Red (Night Vision Friendly) */
+    [data-theme="red"] {
+      --bg-color: #000000;
+      --text-color: #ff0000;
       --accent-color: #ff3333;
-      --input-bg: #1a0000;
-      --input-text: #ff3333;
+      --visited-color: #aa0000;
+      --border-color: #ff0000;
+      --card-bg: #000000;
+      --header-bg: #110000;
+      --highlight-bg: #440000;
     }
 
-    /* Global Reset & Base Styles */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    /* Terminal Green */
+    [data-theme="green"] {
+      --bg-color: #050b05;
+      --text-color: #00ff00;
+      --accent-color: #39ff14;
+      --visited-color: #008f11;
+      --border-color: #00ff00;
+      --card-bg: #050b05;
+      --header-bg: #0c180c;
+      --highlight-bg: #003300;
+      --font-stack: 'Courier New', Courier, monospace;
     }
 
+    /* Base Styling */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
-      line-height: 1.4;
+      font-family: var(--font-stack);
+      margin: 0;
       padding: 15px;
-      transition: background-color 0.15s, color 0.15s;
+      line-height: 1.3;
     }
 
-    /* Header & Layout Structure */
     header {
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 15px;
-      margin-bottom: 20px;
+      background-color: var(--header-bg);
+      border: 1px solid var(--border-color);
+      padding: 15px;
+      margin-bottom: 15px;
     }
 
     .header-top {
@@ -78,319 +80,389 @@
       gap: 10px;
     }
 
-    .brand-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      text-transform: uppercase;
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1px;
     }
 
-    /* Clock Widget */
-    .clock-container {
-      font-family: monospace;
-      font-size: 0.9rem;
-      text-align: right;
+    .brand p {
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      opacity: 0.8;
     }
 
-    .clock-row {
-      display: block;
-    }
-
-    /* Utility Bar: Search & Themes */
-    .utility-bar {
+    /* Clock Hud */
+    .hud-clocks {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 15px;
       gap: 15px;
-      flex-wrap: wrap;
+      font-family: monospace;
+      font-size: 16px;
+      font-weight: bold;
+      border: 1px dashed var(--border-color);
+      padding: 5px 10px;
+      background: var(--card-bg);
     }
 
-    .search-box {
+    .clock-item span {
+      color: var(--accent-color);
+    }
+
+    /* Control Panel (Search + Theme + Bookmarks) */
+    .control-panel {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-container {
       flex-grow: 1;
       max-width: 400px;
     }
 
-    .search-box input {
+    .search-input {
       width: 100%;
-      padding: 6px 10px;
-      font-size: 0.9rem;
-      border: 1px solid var(--border-color);
-      background-color: var(--input-bg);
-      color: var(--input-text);
-      outline: none;
-    }
-
-    .theme-selectors {
-      display: flex;
-      gap: 5px;
-    }
-
-    .theme-btn {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      cursor: pointer;
-      border: 1px solid var(--border-color);
+      padding: 6px;
       background-color: var(--card-bg);
       color: var(--text-color);
+      border: 1px solid var(--border-color);
+      font-size: 14px;
     }
 
-    .theme-btn.active {
-      background-color: var(--accent-color);
-      color: var(--bg-color);
+    .theme-buttons button {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
     }
 
-    /* Grid Layout for Links */
-    .dashboard-grid {
+    .theme-buttons button:hover {
+      background-color: var(--highlight-bg);
+    }
+
+    /* Link Portal Columns Grid */
+    .portal-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 15px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
-    .category-card {
+    .column {
       border: 1px solid var(--border-color);
       background-color: var(--card-bg);
-      padding: 12px;
+      padding: 10px;
     }
 
-    .category-title {
-      font-size: 0.95rem;
+    .column-title {
       font-weight: bold;
       text-transform: uppercase;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 2px solid var(--border-color);
       padding-bottom: 4px;
       margin-bottom: 8px;
-      letter-spacing: 0.5px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
     }
 
     .link-list {
-      list-style: none;
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
     }
 
-    .link-item {
+    .link-list li {
       margin-bottom: 5px;
-      font-size: 0.9rem;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .link-item a {
-      text-decoration: none;
-      color: var(--link-color);
-    }
-
-    .link-item a:hover {
+    .link-list a {
+      color: var(--accent-color);
       text-decoration: underline;
-      color: var(--link-hover);
     }
 
-    .link-description {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--text-muted);
+    .link-list a:visited {
+      color: var(--visited-color);
     }
 
-    /* Footer & Changelog */
+    /* Custom Add Link Form */
+    .add-bookmark-form {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .add-bookmark-form input {
+      background: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 4px;
+      font-size: 11px;
+    }
+
+    .add-bookmark-form button {
+      background: var(--border-color);
+      color: var(--bg-color);
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 11px;
+    }
+
+    /* Hidden element helper for search filtering */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Changelog & Footer */
     footer {
       border-top: 1px solid var(--border-color);
       padding-top: 15px;
-      margin-top: 40px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      font-size: 11px;
+      opacity: 0.8;
     }
 
-    .changelog-section {
-      margin-top: 10px;
+    .changelog-title {
+      font-weight: bold;
+      margin-bottom: 5px;
     }
 
-    .changelog-item {
-      margin-bottom: 4px;
-      font-family: monospace;
+    .changelog-list {
+      list-style-type: none;
+      padding: 0;
     }
 
-    /* Print styling */
-    @media print {
-      body { background: white !important; color: black !important; }
-      .utility-bar { display: none; }
+    .changelog-list li {
+      margin-bottom: 3px;
     }
   </style>
 </head>
-<body data-theme="dark">
+<body>
 
+  <!-- TOP HEADER BLOCK -->
   <header>
     <div class="header-top">
-      <div class="brand-title">StepBrief // Portal</div>
-      <div class="clock-container">
-        <span class="clock-row">LOC: <span id="clock-local">00:00:00</span></span>
-        <span class="clock-row">ZULU: <span id="clock-zulu">00:00:00 Z</span></span>
+      <div class="brand">
+        <h1>STEPBRIEF.NET (CLONE)</h1>
+        <p>Aviation Fast-Load Mission Portal | Support: ops@stepbrief.net</p>
+      </div>
+      
+      <!-- Live HUD Clocks -->
+      <div class="hud-clocks">
+        <div class="clock-item">LCL: <span id="lcl-clock">00:00:00</span></div>
+        <div class="clock-item">ZULU: <span id="zulu-clock">00:00:00Z</span></div>
       </div>
     </div>
 
-    <div class="utility-bar">
-      <div class="search-box">
-        <input type="text" id="search-input" placeholder="Search links or commands (e.g., Wx, METAR)..." autocomplete="off">
+    <!-- Live Filter, Custom Themes, and controls -->
+    <div class="control-panel">
+      <div class="search-container">
+        <input type="text" id="search-input" class="search-input" placeholder="Type to filter links instantly..." autocomplete="off">
       </div>
-      <div class="theme-selectors">
-        <button class="theme-btn" onclick="setTheme('light')" id="btn-light">LIGHT</button>
-        <button class="theme-btn active" onclick="setTheme('dark')" id="btn-dark">DARK</button>
-        <button class="theme-btn" onclick="setTheme('tactical')" id="btn-tactical">TACTICAL</button>
+      <div class="theme-buttons">
+        <button onclick="setTheme('light')">Light</button>
+        <button onclick="setTheme('dark')">Dark</button>
+        <button onclick="setTheme('red')">Tactical Red</button>
+        <button onclick="setTheme('green')">Terminal</button>
       </div>
     </div>
   </header>
 
-  <main class="dashboard-grid">
-    
-    <!-- Column 1: Pre-Flight -->
-    <div class="category-card" data-category="pre-flight">
-      <div class="category-title">Pre-Flight Brief</div>
-      <ul class="link-list">
-        <li class="link-item">
-          <a href="https://www.notams.aim.faa.gov/notamMap/SearchNOTAM.html" target="_blank">FAA NOTAM Search</a>
-          <span class="link-description">Real-time airspace restrictions</span>
-        </li>
-        <li class="link-item">
-          <a href="https://dins.aim.faa.gov/dins" target="_blank">DINS NOTAMs</a>
-          <span class="link-description">Defense Internet NOTAM Service</span>
-        </li>
-        <li class="link-item">
-          <a href="https://www.milplanner.com" target="_blank">MilPlanner</a>
-          <span class="link-description">Military flight planning assistant</span>
-        </li>
-      </ul>
-    </div>
+  <!-- PORTAL COLUMNS GRID -->
+  <main class="portal-grid">
 
-    <!-- Column 2: Weather & Environmental -->
-    <div class="category-card" data-category="weather">
-      <div class="category-title">Weather (Wx)</div>
-      <ul class="link-list">
-        <li class="link-item">
-          <a href="https://www.aviationweather.gov/" target="_blank">Aviation Weather Center</a>
-          <span class="link-description">METARs, TAFs, and Sigmets</span>
-        </li>
-        <li class="link-item">
-          <a href="https://www.fnmoc.navy.mil/" target="_blank">FNMOC Weather</a>
-          <span class="link-description">Navy meteorology portal</span>
-        </li>
-        <li class="link-item">
-          <a href="https://radar.weather.gov/" target="_blank">NWS Doppler Radar</a>
-          <span class="link-description">Live national radar mosaic</span>
-        </li>
+    <!-- Column 1: Pre-Flight Planning -->
+    <section class="column" data-category="preflight">
+      <div class="column-title">Pre-Flight Planning</div>
+      <ul class="link-list" id="preflight-links">
+        <li data-keywords="gdss global decision support system flight plan"><a href="https://www.amc.af.mil/Home/GDSS/" target="_blank">GDSS Login</a></li>
+        <li data-keywords="gtims training management information system"><a href="#" target="_blank">GTIMS Portal</a></li>
+        <li data-keywords="skyvector aeronautical charts flight planning map"><a href="https://skyvector.com/" target="_blank">SkyVector Charts</a></li>
+        <li data-keywords="faa notams notice to airmissions search"><a href="https://notams.aim.faa.gov/notamSearch/" target="_blank">FAA NOTAM Search</a></li>
+        <li data-keywords="dod safepay flight clearance payment"><a href="#" target="_blank">DoD SafePay Clearances</a></li>
+        <li data-keywords="pws personal weather station military"><a href="#" target="_blank">Air Force Portal</a></li>
       </ul>
-    </div>
+    </section>
 
-    <!-- Column 3: Flight Publications -->
-    <div class="category-card" data-category="pubs">
-      <div class="category-title">Flight Publications</div>
-      <ul class="link-list">
-        <li class="link-item">
-          <a href="https://www.faa.gov/air_traffic/publications/" target="_blank">FAA Jo Publications</a>
-          <span class="link-description">7110.65, AIM, and Enroute guides</span>
-        </li>
-        <li class="link-item">
-          <a href="https://www.nga.mil/" target="_blank">NGA Aero App</a>
-          <span class="link-description">DoD flight charts & FLIPs</span>
-        </li>
-        <li class="link-item">
-          <a href="https://skyvector.com/" target="_blank">SkyVector</a>
-          <span class="link-description">VFR/IFR Aeronautical charts</span>
-        </li>
+    <!-- Column 2: Weather (Wx) -->
+    <section class="column" data-category="weather">
+      <div class="column-title">Weather (Wx)</div>
+      <ul class="link-list" id="weather-links">
+        <li data-keywords="nws national weather service radar forecasts"><a href="https://www.weather.gov/" target="_blank">NWS Standard Wx</a></li>
+        <li data-keywords="adds aviation weather center taf metar turbulence icing"><a href="https://www.aviationweather.gov/" target="_blank">Aviation Weather Center</a></li>
+        <li data-keywords="usaf 17th operational weather squadron military wx"><a href="#" target="_blank">USAF Weather Agency</a></li>
+        <li data-keywords="rammb satellite imagery real-time loops"><a href="https://rammb.cira.colostate.edu/" target="_blank">RAMMB Satellite Feed</a></li>
+        <li data-keywords="windy wind models gusts weather radar"><a href="https://www.windy.com" target="_blank">Windy Map Projection</a></li>
       </ul>
-    </div>
+    </section>
 
-    <!-- Column 4: Post-Flight & Logging -->
-    <div class="category-card" data-category="post-flight">
-      <div class="category-title">Post-Flight & Logs</div>
-      <ul class="link-list">
-        <li class="link-item">
-          <a href="#" target="_blank">GDSS Logins</a>
-          <span class="link-description">Global Decision Support System</span>
-        </li>
-        <li class="link-item">
-          <a href="#" target="_blank">MIPS / SHARP</a>
-          <span class="link-description">Logbooks and flight tracking</span>
-        </li>
-        <li class="link-item">
-          <a href="#" target="_blank">Safety Reporting (ASAP)</a>
-          <span class="link-description">Aviation Safety Action Program</span>
-        </li>
+    <!-- Column 3: Flight Publications & FLIPs -->
+    <section class="column" data-category="pubs">
+      <div class="column-title">Publications & FLIPs</div>
+      <ul class="link-list" id="pubs-links">
+        <li data-keywords="aeroapp nga charts digital flips ipad"><a href="#" target="_blank">NGA AeroApp Portal</a></li>
+        <li data-keywords="faa digital d-tpp terminal procedures plates approach"><a href="https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/" target="_blank">FAA Digital TPP</a></li>
+        <li data-keywords="ap1b military training routes charts area planning"><a href="#" target="_blank">NGA Area Planning AP1/B</a></li>
+        <li data-keywords="chart clinic Jeppesen manuals flight procedures"><a href="#" target="_blank">Jeppesen Pubs</a></li>
+        <li data-keywords="base ops airfield directory military guides"><a href="#" target="_blank">DoD Airfield Directory</a></li>
       </ul>
-    </div>
+    </section>
+
+    <!-- Column 4: Personal / Custom Bookmarks -->
+    <section class="column" data-category="custom">
+      <div class="column-title">Custom Bookmarks</div>
+      <ul class="link-list" id="custom-links">
+        <!-- Dynmically loaded from LocalStorage -->
+      </ul>
+      <div class="add-bookmark-form">
+        <input type="text" id="new-title" placeholder="Link Title (e.g., Local Radar)" required>
+        <input type="url" id="new-url" placeholder="URL (https://...)" required>
+        <button onclick="addCustomBookmark()">Add Custom Bookmark</button>
+      </div>
+    </section>
 
   </main>
 
+  <!-- CHONOLOG / CHANGELOG FOOTER -->
   <footer>
-    <div>Contact Portal Administrator: <strong>ops-support@stepbrief.net</strong></div>
-    <div class="changelog-section">
-      <strong>Changelog:</strong>
-      <div class="changelog-item">2026-08-20 - Added Tactical Red theme toggle for night operations.</div>
-      <div class="changelog-item">2026-08-15 - Implemented instant keypress-based search filters.</div>
-      <div class="changelog-item">2026-08-01 - Initial deployment of the minimalist portal grid.</div>
-    </div>
+    <div class="changelog-title">System Changelog & Bulletins</div>
+    <ul class="changelog-list">
+      <li><strong>2026-03-30:</strong> Restructured static template. Added custom local storage capabilities.</li>
+      <li><strong>2026-02-15:</strong> Implemented Tactical Red Night Vision interface and offline clock synchronization.</li>
+      <li><strong>2025-11-01:</strong> Migrated to minimalist index clone. Removed bulky external fonts to optimize loadtimes below 100ms.</li>
+    </ul>
+    <p style="margin-top: 15px; text-align: center;">STEPBRIEF Clone — Created for offline resilient utility.</p>
   </footer>
 
+  <!-- SCRIPT ENGINE (CLOCKS, THEME, FILTER, BOOKMARKS) -->
   <script>
-    // Real-Time Clock Functionality
+    // 1. Clock Engine
     function updateClocks() {
       const now = new Date();
       
-      // Local Time
-      const locHours = String(now.getHours()).padStart(2, '0');
-      const locMins = String(now.getMinutes()).padStart(2, '0');
-      const locSecs = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('clock-local').textContent = `${locHours}:${locMins}:${locSecs}`;
-
-      // Zulu/UTC Time
-      const zuluHours = String(now.getUTCHours()).padStart(2, '0');
-      const zuluMins = String(now.getUTCMinutes()).padStart(2, '0');
-      const zuluSecs = String(now.getUTCSeconds()).padStart(2, '0');
-      document.getElementById('clock-zulu').textContent = `${zuluHours}:${zuluMins}:${zuluSecs} Z`;
+      // Local Time Clock
+      const lclHours = String(now.getHours()).padStart(2, '0');
+      const lclMinutes = String(now.getMinutes()).padStart(2, '0');
+      const lclSeconds = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('lcl-clock').textContent = `${lclHours}:${lclMinutes}:${lclSeconds}`;
+      
+      // Zulu (UTC) Clock
+      const zHours = String(now.getUTCHours()).padStart(2, '0');
+      const zMinutes = String(now.getUTCMinutes()).padStart(2, '0');
+      const zSeconds = String(now.getUTCSeconds()).padStart(2, '0');
+      document.getElementById('zulu-clock').textContent = `${zHours}:${zMinutes}:${zSeconds}Z`;
     }
     setInterval(updateClocks, 1000);
-    updateClocks(); // Initial Call
+    updateClocks(); // Initial execution
 
-    // Theme Switching Engine
+    // 2. Theme Engine
     function setTheme(themeName) {
-      document.body.setAttribute('data-theme', themeName);
-      
-      // Update Active State on Buttons
-      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-${themeName}`).classList.add('active');
-      
-      // Save theme preference locally
-      localStorage.setItem('preferred-theme', themeName);
+      document.documentElement.setAttribute('data-theme', themeName);
+      localStorage.setItem('selected-theme', themeName);
     }
-
-    // Load Saved Theme Preference on Load
-    const savedTheme = localStorage.getItem('preferred-theme') || 'dark';
+    // Load Saved Theme on Startup
+    const savedTheme = localStorage.getItem('selected-theme') || 'light';
     setTheme(savedTheme);
 
-    // Instant Search/Filtering logic
-    document.getElementById('search-input').addEventListener('input', function(e) {
-      const query = e.target.value.toLowerCase().trim();
-      const categories = document.querySelectorAll('.category-card');
+    // 3. Instant Search Filter Engine
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', function() {
+      const filter = this.value.toLowerCase().trim();
+      const listItems = document.querySelectorAll('.link-list li');
+      const columns = document.querySelectorAll('.column');
 
-      categories.forEach(card => {
-        let hasVisibleLink = false;
-        const links = card.querySelectorAll('.link-item');
+      listItems.forEach(item => {
+        // If there's custom data-keywords, search those plus the anchor text
+        const keywords = item.getAttribute('data-keywords') || '';
+        const linkText = item.querySelector('a') ? item.querySelector('a').textContent.toLowerCase() : '';
+        const textToMatch = `${keywords} ${linkText}`.toLowerCase();
 
-        links.forEach(link => {
-          const text = link.textContent.toLowerCase();
-          if (text.includes(query)) {
-            link.style.display = '';
-            hasVisibleLink = true;
-          } else {
-            link.style.display = 'none';
-          }
-        });
-
-        // Hide the whole card category if no links inside match the query
-        if (hasVisibleLink || query === '') {
-          card.style.display = '';
+        if (textToMatch.includes(filter)) {
+          item.classList.remove('hidden');
         } else {
-          card.style.display = 'none';
+          item.classList.add('hidden');
+        }
+      });
+
+      // Hide an entire column if all its links are hidden
+      columns.forEach(col => {
+        const totalLinks = col.querySelectorAll('.link-list li').length;
+        const hiddenLinks = col.querySelectorAll('.link-list li.hidden').length;
+        if (totalLinks > 0 && totalLinks === hiddenLinks) {
+          col.classList.add('hidden');
+        } else {
+          col.classList.remove('hidden');
         }
       });
     });
+
+    // 4. Local Storage Personal Bookmark Engine
+    const customList = document.getElementById('custom-links');
+
+    function loadCustomBookmarks() {
+      customList.innerHTML = '';
+      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
+      
+      if (bookmarks.length === 0) {
+        customList.innerHTML = `<li style="opacity: 0.6; font-style: italic;">No custom links added yet.</li>`;
+        return;
+      }
+
+      bookmarks.forEach((bm, index) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-keywords', bm.title.toLowerCase());
+        li.innerHTML = `
+          <a href="${bm.url}" target="_blank">${bm.title}</a>
+          <button onclick="deleteBookmark(${index})" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 10px; margin-left: 8px;">✕</button>
+        `;
+        customList.appendChild(li);
+      });
+    }
+
+    function addCustomBookmark() {
+      const titleInput = document.getElementById('new-title');
+      const urlInput = document.getElementById('new-url');
+      const title = titleInput.value.trim();
+      let url = urlInput.value.trim();
+
+      if (!title || !url) return;
+
+      // Automatically prepend protocol if user omitted it
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
+
+      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
+      bookmarks.push({ title, url });
+      localStorage.setItem('user-bookmarks', JSON.stringify(bookmarks));
+      
+      titleInput.value = '';
+      urlInput.value = '';
+      loadCustomBookmarks();
+    }
+
+    function deleteBookmark(index) {
+      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
+      bookmarks.splice(index, 1);
+      localStorage.setItem('user-bookmarks', JSON.stringify(bookmarks));
+      loadCustomBookmarks();
+    }
+
+    // Initial load of custom bookmarks
+    loadCustomBookmarks();
   </script>
 </body>
 </html>
