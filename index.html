@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PUEO WIRELESS // How to fo da kine</title>
+  <title>PUEO WIRELESS</title>
   <style>
     /* CSS Custom Variables for Theme Engine */
     :root {
@@ -256,7 +256,7 @@
   <header>
     <div class="header-top">
       <div class="brand">
-        <h1>STEPBRIEF.NET (CLONE)</h1>
+        <h1>PUEO WIRELESS</h1>
         <p>Aviation Fast-Load Mission Portal | Support: ops@stepbrief.net</p>
       </div>
       
@@ -283,186 +283,17 @@
 
   <!-- PORTAL COLUMNS GRID -->
   <main class="portal-grid">
-
-    <!-- Column 1: Pre-Flight Planning -->
-    <section class="column" data-category="preflight">
-      <div class="column-title">Pre-Flight Planning</div>
-      <ul class="link-list" id="preflight-links">
-        <li data-keywords="gdss global decision support system flight plan"><a href="https://www.amc.af.mil/Home/GDSS/" target="_blank">GDSS Login</a></li>
-        <li data-keywords="gtims training management information system"><a href="#" target="_blank">GTIMS Portal</a></li>
-        <li data-keywords="skyvector aeronautical charts flight planning map"><a href="https://skyvector.com/" target="_blank">SkyVector Charts</a></li>
-        <li data-keywords="faa notams notice to airmissions search"><a href="https://notams.aim.faa.gov/notamSearch/" target="_blank">FAA NOTAM Search</a></li>
-        <li data-keywords="dod safepay flight clearance payment"><a href="#" target="_blank">DoD SafePay Clearances</a></li>
-        <li data-keywords="pws personal weather station military"><a href="#" target="_blank">Air Force Portal</a></li>
-      </ul>
-    </section>
-
-    <!-- Column 2: Weather (Wx) -->
-    <section class="column" data-category="weather">
-      <div class="column-title">Weather (Wx)</div>
-      <ul class="link-list" id="weather-links">
-        <li data-keywords="nws national weather service radar forecasts"><a href="https://www.weather.gov/" target="_blank">NWS Standard Wx</a></li>
-        <li data-keywords="adds aviation weather center taf metar turbulence icing"><a href="https://www.aviationweather.gov/" target="_blank">Aviation Weather Center</a></li>
-        <li data-keywords="usaf 17th operational weather squadron military wx"><a href="#" target="_blank">USAF Weather Agency</a></li>
-        <li data-keywords="rammb satellite imagery real-time loops"><a href="https://rammb.cira.colostate.edu/" target="_blank">RAMMB Satellite Feed</a></li>
-        <li data-keywords="windy wind models gusts weather radar"><a href="https://www.windy.com" target="_blank">Windy Map Projection</a></li>
-      </ul>
-    </section>
-
-    <!-- Column 3: Flight Publications & FLIPs -->
-    <section class="column" data-category="pubs">
-      <div class="column-title">Publications & FLIPs</div>
-      <ul class="link-list" id="pubs-links">
-        <li data-keywords="aeroapp nga charts digital flips ipad"><a href="#" target="_blank">NGA AeroApp Portal</a></li>
-        <li data-keywords="faa digital d-tpp terminal procedures plates approach"><a href="https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/" target="_blank">FAA Digital TPP</a></li>
-        <li data-keywords="ap1b military training routes charts area planning"><a href="#" target="_blank">NGA Area Planning AP1/B</a></li>
-        <li data-keywords="chart clinic Jeppesen manuals flight procedures"><a href="#" target="_blank">Jeppesen Pubs</a></li>
-        <li data-keywords="base ops airfield directory military guides"><a href="#" target="_blank">DoD Airfield Directory</a></li>
-      </ul>
-    </section>
-
-    <!-- Column 4: Personal / Custom Bookmarks -->
-    <section class="column" data-category="custom">
-      <div class="column-title">Custom Bookmarks</div>
-      <ul class="link-list" id="custom-links">
-        <!-- Dynmically loaded from LocalStorage -->
-      </ul>
-      <div class="add-bookmark-form">
-        <input type="text" id="new-title" placeholder="Link Title (e.g., Local Radar)" required>
-        <input type="url" id="new-url" placeholder="URL (https://...)" required>
-        <button onclick="addCustomBookmark()">Add Custom Bookmark</button>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- CHONOLOG / CHANGELOG FOOTER -->
-  <footer>
-    <div class="changelog-title">System Changelog & Bulletins</div>
-    <ul class="changelog-list">
-      <li><strong>2026-03-30:</strong> Restructured static template. Added custom local storage capabilities.</li>
-      <li><strong>2026-02-15:</strong> Implemented Tactical Red Night Vision interface and offline clock synchronization.</li>
-      <li><strong>2025-11-01:</strong> Migrated to minimalist index clone. Removed bulky external fonts to optimize loadtimes below 100ms.</li>
-    </ul>
-    <p style="margin-top: 15px; text-align: center;">STEPBRIEF Clone — Created for offline resilient utility.</p>
-  </footer>
-
-  <!-- SCRIPT ENGINE (CLOCKS, THEME, FILTER, BOOKMARKS) -->
-  <script>
-    // 1. Clock Engine
-    function updateClocks() {
-      const now = new Date();
-      
-      // Local Time Clock
-      const lclHours = String(now.getHours()).padStart(2, '0');
-      const lclMinutes = String(now.getMinutes()).padStart(2, '0');
-      const lclSeconds = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('lcl-clock').textContent = `${lclHours}:${lclMinutes}:${lclSeconds}`;
-      
-      // Zulu (UTC) Clock
-      const zHours = String(now.getUTCHours()).padStart(2, '0');
-      const zMinutes = String(now.getUTCMinutes()).padStart(2, '0');
-      const zSeconds = String(now.getUTCSeconds()).padStart(2, '0');
-      document.getElementById('zulu-clock').textContent = `${zHours}:${zMinutes}:${zSeconds}Z`;
-    }
-    setInterval(updateClocks, 1000);
-    updateClocks(); // Initial execution
-
-    // 2. Theme Engine
-    function setTheme(themeName) {
-      document.documentElement.setAttribute('data-theme', themeName);
-      localStorage.setItem('selected-theme', themeName);
-    }
-    // Load Saved Theme on Startup
-    const savedTheme = localStorage.getItem('selected-theme') || 'light';
-    setTheme(savedTheme);
-
-    // 3. Instant Search Filter Engine
-    const searchInput = document.getElementById('search-input');
-    searchInput.addEventListener('input', function() {
-      const filter = this.value.toLowerCase().trim();
-      const listItems = document.querySelectorAll('.link-list li');
-      const columns = document.querySelectorAll('.column');
-
-      listItems.forEach(item => {
-        // If there's custom data-keywords, search those plus the anchor text
-        const keywords = item.getAttribute('data-keywords') || '';
-        const linkText = item.querySelector('a') ? item.querySelector('a').textContent.toLowerCase() : '';
-        const textToMatch = `${keywords} ${linkText}`.toLowerCase();
-
-        if (textToMatch.includes(filter)) {
-          item.classList.remove('hidden');
-        } else {
-          item.classList.add('hidden');
-        }
-      });
-
-      // Hide an entire column if all its links are hidden
-      columns.forEach(col => {
-        const totalLinks = col.querySelectorAll('.link-list li').length;
-        const hiddenLinks = col.querySelectorAll('.link-list li.hidden').length;
-        if (totalLinks > 0 && totalLinks === hiddenLinks) {
-          col.classList.add('hidden');
-        } else {
-          col.classList.remove('hidden');
-        }
-      });
-    });
-
-    // 4. Local Storage Personal Bookmark Engine
-    const customList = document.getElementById('custom-links');
-
-    function loadCustomBookmarks() {
-      customList.innerHTML = '';
-      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
-      
-      if (bookmarks.length === 0) {
-        customList.innerHTML = `<li style="opacity: 0.6; font-style: italic;">No custom links added yet.</li>`;
-        return;
-      }
-
-      bookmarks.forEach((bm, index) => {
-        const li = document.createElement('li');
-        li.setAttribute('data-keywords', bm.title.toLowerCase());
-        li.innerHTML = `
-          <a href="${bm.url}" target="_blank">${bm.title}</a>
-          <button onclick="deleteBookmark(${index})" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 10px; margin-left: 8px;">✕</button>
-        `;
-        customList.appendChild(li);
-      });
-    }
-
-    function addCustomBookmark() {
-      const titleInput = document.getElementById('new-title');
-      const urlInput = document.getElementById('new-url');
-      const title = titleInput.value.trim();
-      let url = urlInput.value.trim();
-
-      if (!title || !url) return;
-
-      // Automatically prepend protocol if user omitted it
-      if (!/^https?:\/\//i.test(url)) {
-        url = 'https://' + url;
-      }
-
-      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
-      bookmarks.push({ title, url });
-      localStorage.setItem('user-bookmarks', JSON.stringify(bookmarks));
-      
-      titleInput.value = '';
-      urlInput.value = '';
-      loadCustomBookmarks();
-    }
-
-    function deleteBookmark(index) {
-      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
-      bookmarks.splice(index, 1);
-      localStorage.setItem('user-bookmarks', JSON.stringify(bookmarks));
-      loadCustomBookmarks();
-    }
-
-    // Initial load of custom bookmarks
-    loadCustomBookmarks();
-  </script>
-</body>
-</html>
+    <!-- HIANG T10 TOUR CHECKLIST SECTION -->
+    <section class="column" style="grid-column: 1 / -1; margin-top: 15px;">
+      <div class="column-title">How to MPA</div>
+      <ol class="link-list" style="list-style-type: decimal; padding-left: 20px;">
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member IS NOT drawing military disability or retirement pay during T10 tour IAW DAFI 36-2619. <strong style="color: var(--accent-color);">(OPR: Member)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member has provided a copy of their Record Review /Points History (1825 review) RIP from Virtual MPF. <strong style="color: var(--accent-color);">(OPR: Member)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member has CURRENT and PASSING fitness assessment. (Attach current Fitness score sheet from myFitness) <strong style="color: var(--accent-color);">(OPR: CSS or UFPM)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member's T10 tour WILL NOT take them into the Sanctuary zone (18 years to 20 years) Total Active Duty towards eligibility for an AD retirement IAW DAFI 36-2619. <strong style="color: var(--accent-color);">(OPR: CSS)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Enlisted Only: Member's Expiration Term of Service WILL NOT expire before the end of T10 tour IAW DAFI 36-2619. <strong style="color: var(--accent-color);">(OPR: CSS)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member WILL NOT be subject to their Mandatory Separation Date (MSD) before end of T10 Tour IAW AFI 36-2619. <strong style="color: var(--accent-color);">(OPR: CSS)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member IS CURRENT with all Individual Medical requirements. NO medical or dental restrictions exist that would preclude member from entering/performing an Active Duty tour IAW DAFMAN 48-123. <strong style="color: var(--accent-color);">(OPR: 154 MDG)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">1825 Waivers: 179 day waiver not required. Waivers will be required once member reaches 1825 days (5 year) over a rolling 6 year period (2190 days). <strong style="color: var(--accent-color);">(OPR: Member/AD Unit)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">(Technicians ONLY) must notify HRO and receive USERRA brief. <strong style="color: var(--accent-color);">(OPR: HRO Employee Benefits)</strong></li>
+        <li style="margin-bottom: 8px; align-items: start; text-align: left;">All personnel employed outside of their T10 tour will submit AF Form 390
