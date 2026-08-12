@@ -157,8 +157,8 @@
             <!-- Empty State -->
             <div id="emptyState" class="hidden text-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl">
                 <i class="fa-regular fa-folder-open text-5xl text-slate-300 mb-3"></i>
-                <h3 class="text-lg font-bold text-slate-600">No documents found</h3>
-                <p class="text-slate-400 text-sm mt-1">Try adding a new document or changing your search criteria.</p>
+                <h3 class="text-lg font-bold text-slate-600">No documents uploaded yet</h3>
+                <p class="text-slate-400 text-sm mt-1">Use the "Submit Document" panel above to upload the first resource.</p>
             </div>
         </section>
 
@@ -169,60 +169,20 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p>&copy; <span id="currentYear"></span> PUEO Wireless. All rights reserved.</p>
             <div class="flex gap-4">
-                <button onclick="resetToDefault()" class="text-rose-400 hover:text-rose-300 transition font-semibold">
-                    <i class="fa-solid fa-arrow-rotate-left"></i> Restore Sample Defaults
+                <button onclick="clearAllDocuments()" class="text-rose-400 hover:text-rose-300 transition font-semibold">
+                    <i class="fa-solid fa-trash-can"></i> Clear All Documents
                 </button>
             </div>
         </div>
     </footer>
 
-    <!-- App JavaScript Logic (Simple Shared Cloud Storage Engine) -->
+    <!-- App JavaScript Logic -->
     <script>
-        // High-availability global key-value database bucket
-        const dbUrl = "https://kvdb.io/H8jK2sP9wQ5e3R2t1Y6u/pueo_wireless_global_repo";
+        // Unique global bucket key for PUEO Wireless
+        const dbUrl = "https://kvdb.io/H8jK2sP9wQ5e3R2t1Y6u/pueo_wireless_global_repo_clean";
 
         let currentFilter = 'All';
         let documents = [];
-
-        // Sample documents to load if no custom data exists
-        const defaultDocuments = [
-            {
-                id: "default-1",
-                title: "Network Architecture Blueprint",
-                category: "In processing",
-                type: "link",
-                url: "https://example.com/network-blueprint",
-                desc: "High-level diagram outlining the PUEO Wireless suburban node layout and fiber backhaul routing.",
-                addedOn: "2023-10-15"
-            },
-            {
-                id: "default-2",
-                title: "Standard SLA Agreement",
-                category: "LES",
-                type: "link",
-                url: "https://example.com/sla-agreement",
-                desc: "Enterprise Client Service Level Agreement (SLA) covering latency limits and uptime guarantees.",
-                addedOn: "2023-09-12"
-            },
-            {
-                id: "default-3",
-                title: "Field Deployment Checklist",
-                category: "MPA",
-                type: "link",
-                url: "https://example.com/deployment-checklist",
-                desc: "Step-by-step procedures for field technicians installing PUEO receiver dishes.",
-                addedOn: "2023-11-02"
-            },
-            {
-                id: "default-4",
-                title: "Product Range Pitchdeck",
-                category: "operations",
-                type: "link",
-                url: "https://example.com/marketing-pitch",
-                desc: "Client-facing slide presentation showcasing our localized wireless bandwidth packages.",
-                addedOn: "2023-11-20"
-            }
-        ];
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
@@ -235,8 +195,8 @@
                 const res = await fetch(dbUrl);
                 if (!res.ok) {
                     if (res.status === 404) {
-                        // DB is clean. Push defaults so the site initializes with dummy content
-                        documents = [...defaultDocuments];
+                        // DB is completely clean, initialize with empty structure
+                        documents = [];
                         await saveToCloud(documents);
                         return;
                     }
@@ -247,17 +207,16 @@
                 if (data && Array.isArray(data)) {
                     documents = data;
                 } else {
-                    documents = [...defaultDocuments];
+                    documents = [];
                 }
                 renderDocuments();
             } catch (err) {
                 console.warn("Using offline localStorage fallback...", err);
-                // Fall-back to LocalStorage if internet cuts out
                 const localDocs = localStorage.getItem('pueo_local_docs');
                 if (localDocs) {
                     documents = JSON.parse(localDocs);
                 } else {
-                    documents = [...defaultDocuments];
+                    documents = [];
                 }
                 renderDocuments();
             }
@@ -321,7 +280,7 @@
         }
 
         async function deleteDocument(id) {
-            if (confirm('Are you sure you want to delete this document from the portal? This removes it permanently for everyone.')) {
+            if (confirm('Are you sure you want to delete this document? This removes it permanently for everyone.')) {
                 documents = documents.filter(doc => doc.id !== id);
                 await saveToCloud(documents);
             }
@@ -456,9 +415,9 @@
         function toggleSubmitPanel() { document.getElementById('submitPanel').classList.toggle('hidden'); }
         function clearForm() { document.getElementById('docForm').reset(); toggleInputFields(); }
 
-        async function resetToDefault() {
-            if (confirm('Warning: This will restore default mock documents and wipe all currently uploaded links/PDFs. Continue?')) {
-                documents = [...defaultDocuments];
+        async function clearAllDocuments() {
+            if (confirm('Warning: This will permanently wipe all uploaded links and PDF documents from the global system database. Continue?')) {
+                documents = [];
                 await saveToCloud(documents);
             }
         }
