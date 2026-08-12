@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for professional iconography -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -32,23 +32,72 @@
     <style>
         /* Custom scrollbar styling for description boxes */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #F5F5F5;
+            background: #1E1E1E;
             border-radius: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #C62828; /* PUEO Crimson Red */
             border-radius: 4px;
-            border: 1px solid #FFB300; /* PUEO Yellow Border */
+            border: 2px solid #FFB300; /* PUEO Yellow Border */
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #B71C1C;
         }
+        
+        /* Smooth transitions */
+        .transition-all-300 {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body class="bg-neutral-100 text-neutral-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Database Setup Guide Modal (Hidden by Default) -->
+    <div id="setupModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border-2 border-pueo-yellow rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="bg-pueo-black text-white p-6 border-b-4 border-pueo-red flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-cloud text-pueo-yellow text-xl"></i>
+                    <h2 class="text-lg font-bold uppercase tracking-wider text-pueo-yellow">Connect Your Free Database</h2>
+                </div>
+                <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 text-sm text-neutral-700 leading-relaxed">
+                <p class="font-semibold text-neutral-900">Follow these 4 quick steps to enable unlimited, secure cross-device document sync between your laptop, iPad, and team members:</p>
+                
+                <ol class="list-decimal pl-5 space-y-3">
+                    <li>
+                        <strong class="text-pueo-red">Create a Firebase Account:</strong> Go to <a href="https://console.firebase.google.com/" target="_blank" class="text-pueo-red underline font-bold">Firebase Console</a> (log in with any Google Account) and click <strong class="text-pueo-black">"Add Project"</strong>. Name it <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-xs font-mono font-bold">PUEO-Wireless</code>.
+                    </li>
+                    <li>
+                        <strong class="text-pueo-red">Create Realtime Database:</strong> Inside your project dashboard, click <strong class="text-pueo-black">"Realtime Database"</strong> in the left sidebar menu, then click <strong class="text-pueo-black">"Create Database"</strong>. Choose your location and click Next.
+                    </li>
+                    <li>
+                        <strong class="text-pueo-red">Set Rules to Public:</strong> In the Realtime Database panel, switch to the <strong class="text-pueo-black">"Rules"</strong> tab. Change both <code class="bg-neutral-100 px-1 py-0.5 rounded font-mono text-xs">".read"</code> and <code class="bg-neutral-100 px-1 py-0.5 rounded font-mono text-xs">".write"</code> values to <code class="bg-neutral-100 px-1 py-0.5 rounded font-mono text-xs text-emerald-600">true</code>, then click <strong class="text-pueo-black">"Publish"</strong>. 
+                        <p class="text-xs text-neutral-500 mt-1"><em>Note: This allows password-free sync. For high-security setups, you can configure standard Firebase auth tokens later.</em></p>
+                    </li>
+                    <li>
+                        <strong class="text-pueo-red">Copy and Paste URL:</strong> Copy the database URL displayed at the top of your database window (it looks like <code class="bg-neutral-100 px-1.5 py-0.5 rounded text-xs font-mono">https://your-app-default-rtdb.firebaseio.com/</code>). Open your saved <code class="bg-neutral-100 px-1 py-0.5 rounded font-mono text-xs">index.html</code> in a text editor, find <code class="bg-neutral-100 px-1 py-0.5 rounded font-mono text-xs">const dbUrl = "REPLACE_ME_WITH_YOUR_FIREBASE_URL";</code> near line 210, and paste your URL there!
+                    </li>
+                </ol>
+
+                <div class="bg-pueo-yellow/10 border-l-4 border-pueo-yellow p-4 rounded-r-lg mt-4">
+                    <p class="text-xs text-pueo-black font-semibold">
+                        <i class="fa-solid fa-triangle-exclamation mr-1 text-pueo-red"></i> Current Mode: <span id="modalModeText">Local Sandbox Mode</span>. 
+                        Your documents will save in your current web browser but won't synchronize across other computers or iPads until you update the database link in the code.
+                    </p>
+                </div>
+            </div>
+            <div class="bg-neutral-50 p-4 border-t border-neutral-100 flex justify-end">
+                <button onclick="toggleSetupModal()" class="bg-pueo-black hover:bg-neutral-800 text-white px-5 py-2 rounded-lg font-bold transition text-xs border border-pueo-yellow">Got It!</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Header Section -->
     <header class="bg-pueo-black text-white shadow-md border-b-4 border-pueo-yellow">
@@ -65,10 +114,11 @@
 
             <!-- Sync Status Indicator and Upload CTA -->
             <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
-                <div id="syncStatus" class="flex items-center gap-2 px-3.5 py-1.5 bg-neutral-900 border border-neutral-700 rounded-full text-xs font-semibold">
-                    <span class="h-2 w-2 rounded-full bg-neutral-500 animate-pulse" id="syncDot"></span>
-                    <span id="syncText" class="text-neutral-400">Connecting...</span>
-                </div>
+                <button onclick="toggleSetupModal()" id="syncStatus" class="flex items-center gap-2 px-3.5 py-1.5 bg-neutral-900 border border-neutral-700 rounded-full text-xs font-semibold cursor-pointer hover:border-pueo-yellow transition">
+                    <span class="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" id="syncDot"></span>
+                    <span id="syncText" class="text-amber-400">Local Sandbox Mode</span>
+                    <i class="fa-solid fa-circle-info text-[10px] text-neutral-400 ml-1"></i>
+                </button>
                 <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Submit Document or Link
                 </button>
@@ -80,7 +130,7 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- SUBMIT / EDIT PANEL (Hidden by Default) -->
-        <section id="submitPanel" class="hidden bg-white border-2 border-pueo-yellow rounded-2xl shadow-lg p-6 mb-8 transition-all">
+        <section id="submitPanel" class="hidden bg-white border-2 border-pueo-yellow rounded-2xl shadow-lg p-6 mb-8 transition-all-300">
             <div class="flex justify-between items-center mb-4 pb-2 border-b border-neutral-100">
                 <h2 id="formTitleText" class="text-lg font-bold text-pueo-black flex items-center gap-2">
                     <i class="fa-solid fa-circle-plus text-pueo-red"></i> Add New Document to Portal
@@ -128,7 +178,7 @@
                 </div>
 
                 <div id="pdfInputContainer" class="md:col-span-2 hidden">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF File (Max 3MB)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF File (Max 3.5MB)</label>
                     <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200">
                     <p id="pdfHelpText" class="text-xs text-neutral-400 mt-1 hidden">*Keep file empty to retain the previously uploaded PDF if editing.</p>
                 </div>
@@ -136,7 +186,7 @@
                 <!-- Expanded Description Area for Advanced Instructions -->
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Instructions / Description (Detailed guidelines)</label>
-                    <textarea id="docDesc" rows="5" placeholder="Enter detailed, advanced instructions on how to fill out, process, or reference this document..." class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm font-normal leading-relaxed"></textarea>
+                    <textarea id="docDesc" rows="6" placeholder="Enter detailed, advanced instructions on how to fill out, process, or reference this document..." class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm font-normal leading-relaxed"></textarea>
                 </div>
 
                 <div class="md:col-span-2 flex justify-end gap-3 mt-2">
@@ -204,40 +254,76 @@
 
     <!-- App JavaScript Logic -->
     <script>
-        // High-Capacity, CORS-friendly Firebase Realtime Database Endpoint
-        // Fully supports large payloads (Base64 PDF uploads up to several Megabytes)
-        const dbUrl = "https://pueo-wireless-shared-rtdb.firebaseio.com/documents.json";
+        // =========================================================================
+        // TO ENABLE CLOUD SYNC BETWEEN LAPTOP & IPAD:
+        // Paste your Firebase Realtime Database URL inside the double quotes below:
+        // Example: const dbUrl = "https://pueo-wireless-default-rtdb.firebaseio.com/documents.json";
+        // =========================================================================
+        const dbUrl = "REPLACE_ME_WITH_YOUR_FIREBASE_URL";
 
         let currentFilter = 'All';
         let documents = [];
         let editingId = null;
+        let isUsingCloud = false;
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
-            loadSharedDatabase();
             
-            // Periodically fetch backend updates (every 8 seconds) so changes propagate to other devices automatically
-            setInterval(loadSharedDatabase, 8000);
+            // Check if the developer has filled out the Firebase Database URL
+            if (dbUrl && dbUrl !== "" && !dbUrl.includes("REPLACE_ME")) {
+                isUsingCloud = true;
+                loadSharedDatabase();
+                // Automatically fetch database updates (every 8 seconds) so changes show on laptop/iPad
+                setInterval(loadSharedDatabase, 8000);
+            } else {
+                isUsingCloud = false;
+                loadLocalBackup();
+            }
         });
 
-        // Update sync status indicator
-        function updateSyncStatus(connected, message) {
+        function toggleSetupModal() {
+            const modal = document.getElementById('setupModal');
+            const text = document.getElementById('modalModeText');
+            text.innerText = isUsingCloud ? "Connected to Cloud Sync" : "Local Sandbox Mode (Unsynced)";
+            modal.classList.toggle('hidden');
+        }
+
+        // Update sync status indicator in the header
+        function updateSyncStatus(statusType, textMessage) {
             const dot = document.getElementById('syncDot');
             const text = document.getElementById('syncText');
-            
-            if (connected) {
-                dot.className = "h-2.5 w-2.5 rounded-full bg-emerald-500";
-                text.className = "text-emerald-400";
-                text.innerText = message || "Connected to Cloud";
-            } else {
+
+            if (statusType === 'connected') {
+                dot.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981]";
+                text.className = "text-emerald-400 font-bold";
+                text.innerText = textMessage || "Connected to Cloud";
+            } else if (statusType === 'local') {
                 dot.className = "h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse";
-                text.className = "text-amber-400";
-                text.innerText = message || "Offline (Local Only)";
+                text.className = "text-amber-400 hover:underline";
+                text.innerText = "Sandbox (Click to Sync)";
+            } else {
+                dot.className = "h-2.5 w-2.5 rounded-full bg-pueo-red animate-pulse";
+                text.className = "text-pueo-red font-bold";
+                text.innerText = textMessage || "Sync Failed (Retry...)";
             }
         }
 
-        // Pull documents from the global cloud space
+        // Local Fallback loader
+        function loadLocalBackup() {
+            const localDocs = localStorage.getItem('pueo_local_docs');
+            if (localDocs) {
+                documents = JSON.parse(localDocs);
+            } else {
+                documents = [];
+            }
+            updateSyncStatus('local');
+            renderDocuments();
+        }
+
+        // Pull documents from the Firebase cloud database
         async function loadSharedDatabase() {
+            if (!isUsingCloud) return;
+
             try {
                 const res = await fetch(dbUrl);
                 if (!res.ok) {
@@ -245,32 +331,28 @@
                 }
 
                 const data = await res.json();
-                
-                // Firebase REST returns null if database path is empty
+
                 if (data === null) {
                     documents = [];
                 } else if (Array.isArray(data)) {
                     documents = data;
                 } else if (typeof data === 'object') {
-                    // Fallback formatting check if database structures nested
                     documents = Object.values(data);
                 } else {
                     documents = [];
                 }
 
-                // Sync local browser storage cache with retrieved database content
+                // Cache in local storage for off-line loading speeds
                 localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
-                updateSyncStatus(true, "Connected to Cloud");
+                updateSyncStatus('connected', "Connected to Cloud");
                 renderDocuments();
             } catch (err) {
-                console.warn("Using local cache fallback sync...", err);
+                console.warn("Could not sync with Firebase, checking local backup...", err);
                 const localDocs = localStorage.getItem('pueo_local_docs');
                 if (localDocs) {
                     documents = JSON.parse(localDocs);
-                } else {
-                    documents = [];
                 }
-                updateSyncStatus(false, "Syncing Error (Offline fallback)");
+                updateSyncStatus('failed', "Offline Sync Error");
                 renderDocuments();
             }
         }
@@ -313,7 +395,7 @@
                     }
                 } else {
                     const file = fileInput.files[0];
-                    if (file.size > 3.5 * 1024 * 1024) {
+                    if (file.size > 3.8 * 1024 * 1024) {
                         alert("PDF file is too large! Please choose a compressed PDF under 3.5MB to ensure flawless cross-device cloud sync.");
                         return;
                     }
@@ -343,7 +425,7 @@
                 documents.unshift(doc);
             }
 
-            await saveToCloud(documents);
+            await saveToDatabase(documents);
             clearForm();
             toggleSubmitPanel();
         }
@@ -386,26 +468,32 @@
             document.getElementById('formSubmitBtn').innerText = "Save Changes";
         }
 
-        // Push data to cloud so other users see updates instantly on load/refresh
-        async function saveToCloud(docsList) {
+        // Push data to cloud or LocalStorage depending on connection status
+        async function saveToDatabase(docsList) {
             localStorage.setItem('pueo_local_docs', JSON.stringify(docsList));
             renderDocuments();
 
+            if (!isUsingCloud) {
+                // Instantly update status for sandbox environments
+                updateSyncStatus('local');
+                return;
+            }
+
             try {
-                updateSyncStatus(false, "Uploading to Cloud...");
+                updateSyncStatus('failed', "Uploading to Cloud...");
                 const response = await fetch(dbUrl, {
-                    method: 'PUT', // Overwrites the database array completely with correct updated list
+                    method: 'PUT', // Overwrites database space with updated list
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(docsList)
                 });
                 if (!response.ok) {
                     throw new Error("PUT rejected with status " + response.status);
                 }
-                updateSyncStatus(true, "Connected to Cloud");
+                updateSyncStatus('connected', "Connected to Cloud");
             } catch (err) {
                 console.error("Cloud upload rejected.", err);
-                alert("The cloud database rejected the update. Your document was saved locally, but will not sync across other devices until connection is restored.");
-                updateSyncStatus(false, "Upload Error (Saved locally)");
+                alert("The cloud database rejected the upload (usually due to size limits or permission settings). Your change has been saved to your browser cache locally.");
+                updateSyncStatus('failed', "Upload Error (Saved locally)");
             }
         }
 
@@ -415,7 +503,7 @@
                 if (editingId === id) {
                     clearForm();
                 }
-                await saveToCloud(documents);
+                await saveToDatabase(documents);
             }
         }
 
@@ -502,10 +590,10 @@
                             ${doc.title}
                         </h3>
 
-                        <!-- Embedded Instructions Text Box with custom scroll bar -->
-                        <div class="mt-1 bg-neutral-50 p-2.5 rounded border border-neutral-200 flex-grow max-h-36 overflow-y-auto custom-scrollbar">
-                            <h4 class="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Instructions</h4>
-                            <p class="text-xs text-neutral-600 whitespace-pre-wrap leading-relaxed">${doc.desc || 'No specific guidelines provided.'}</p>
+                        <!-- Scrollable Description Text Box with PUEO Red scroll bar -->
+                        <div class="mt-2 bg-neutral-900 p-3 rounded border border-neutral-800 flex-grow max-h-48 overflow-y-auto custom-scrollbar">
+                            <h4 class="text-[9px] font-bold text-pueo-yellow uppercase tracking-wider mb-1">Instructions</h4>
+                            <p class="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed">${doc.desc || 'No guidelines provided.'}</p>
                         </div>
                     </div>
 
