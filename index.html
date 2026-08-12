@@ -1,435 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PUEO WIRELESS</title>
-  <style>
-    /* CSS Custom Variables for Theme Engine */
-    :root {
-      --bg-color: #ffffff;
-      --text-color: #000000;
-      --accent-color: #0000ee;
-      --visited-color: #551a8b;
-      --border-color: #000000;
-      --card-bg: #ffffff;
-      --header-bg: #f0f0f0;
-      --highlight-bg: #ffffcc;
-      --font-stack: Arial, sans-serif;
-    }
-
-    /* Dark Theme */
-    [data-theme="dark"] {
-      --bg-color: #121212;
-      --text-color: #e0e0e0;
-      --accent-color: #33b5e5;
-      --visited-color: #9933cc;
-      --border-color: #444444;
-      --card-bg: #1e1e1e;
-      --header-bg: #1a1a1a;
-      --highlight-bg: #332200;
-    }
-
-    /* Tactical Red (Night Vision Friendly) */
-    [data-theme="red"] {
-      --bg-color: #000000;
-      --text-color: #ff0000;
-      --accent-color: #ff3333;
-      --visited-color: #aa0000;
-      --border-color: #ff0000;
-      --card-bg: #000000;
-      --header-bg: #110000;
-      --highlight-bg: #440000;
-    }
-
-    /* Terminal Green */
-    [data-theme="green"] {
-      --bg-color: #050b05;
-      --text-color: #00ff00;
-      --accent-color: #39ff14;
-      --visited-color: #008f11;
-      --border-color: #00ff00;
-      --card-bg: #050b05;
-      --header-bg: #0c180c;
-      --highlight-bg: #003300;
-      --font-stack: 'Courier New', Courier, monospace;
-    }
-
-    /* Base Styling */
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: var(--font-stack);
-      margin: 0;
-      padding: 15px;
-      line-height: 1.3;
-    }
-
-    header {
-      background-color: var(--header-bg);
-      border: 1px solid var(--border-color);
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-
-    .brand p {
-      margin: 2px 0 0 0;
-      font-size: 12px;
-      opacity: 0.8;
-    }
-
-    /* Clock Hud */
-    .hud-clocks {
-      display: flex;
-      gap: 15px;
-      font-family: monospace;
-      font-size: 16px;
-      font-weight: bold;
-      border: 1px dashed var(--border-color);
-      padding: 5px 10px;
-      background: var(--card-bg);
-    }
-
-    .clock-item span {
-      color: var(--accent-color);
-    }
-
-    /* Control Panel (Search + Theme + Bookmarks) */
-    .control-panel {
-      margin-top: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .search-container {
-      flex-grow: 1;
-      max-width: 400px;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 6px;
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      font-size: 14px;
-    }
-
-    .theme-buttons button {
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      padding: 5px 10px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .theme-buttons button:hover {
-      background-color: var(--highlight-bg);
-    }
-
-    /* Link Portal Columns Grid */
-    .portal-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    .column {
-      border: 1px solid var(--border-color);
-      background-color: var(--card-bg);
-      padding: 10px;
-    }
-
-    .column-title {
-      font-weight: bold;
-      text-transform: uppercase;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 4px;
-      margin-bottom: 8px;
-      font-size: 14px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .link-list {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .link-list li {
-      margin-bottom: 5px;
-      font-size: 13px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .link-list a {
-      color: var(--accent-color);
-      text-decoration: underline;
-    }
-
-    .link-list a:visited {
-      color: var(--visited-color);
-    }
-
-    /* Custom Add Link Form */
-    .add-bookmark-form {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed var(--border-color);
-    }
-
-    .add-bookmark-form input {
-      background: var(--card-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      padding: 4px;
-      font-size: 11px;
-    }
-
-    .add-bookmark-form button {
-      background: var(--border-color);
-      color: var(--bg-color);
-      border: none;
-      padding: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 11px;
-    }
-
-    /* Hidden element helper for search filtering */
-    .hidden {
-      display: none !important;
-    }
-
-    /* Changelog & Footer */
-    footer {
-      border-top: 1px solid var(--border-color);
-      padding-top: 15px;
-      font-size: 11px;
-      opacity: 0.8;
-    }
-
-    .changelog-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .changelog-list {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    .changelog-list li {
-      margin-bottom: 3px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUEO Wireless - Interactive Document Portal</title>
+    <!-- Tailwind CSS for sleek UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pueo: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
 
-  <!-- TOP HEADER BLOCK -->
-  <header>
-    <div class="header-top">
-      <div class="brand">
-        <h1>PUEO WIRELESS</h1>
-        <p>Aviation Fast-Load Mission Portal | Support: ops@stepbrief.net</p>
-      </div>
-      
-      <!-- Live HUD Clocks -->
-      <div class="hud-clocks">
-        <div class="clock-item">LCL: <span id="lcl-clock">00:00:00</span></div>
-        <div class="clock-item">ZULU: <span id="zulu-clock">00:00:00Z</span></div>
-      </div>
-    </div>
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-pueo-900 via-pueo-800 to-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-sky-500 p-2.5 rounded-lg shadow-inner">
+                    <i class="fa-solid fa-wifi text-2xl text-white animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-wider uppercase">PUEO Wireless</h1>
+                    <p class="text-xs text-sky-200">Interactive Document & Resource Portal</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleAdminPanel()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-gears"></i> Plug & Play Panel
+                </button>
+            </div>
+        </div>
+    </header>
 
-    <!-- Live Filter, Custom Themes, and controls -->
-    <div class="control-panel">
-      <div class="search-container">
-        <input type="text" id="search-input" class="search-input" placeholder="Type to filter links instantly..." autocomplete="off">
-      </div>
-      <div class="theme-buttons">
-        <button onclick="setTheme('light')">Light</button>
-        <button onclick="setTheme('dark')">Dark</button>
-        <button onclick="setTheme('red')">Tactical Red</button>
-        <button onclick="setTheme('green')">Terminal</button>
-      </div>
-    </div>
-  </header>
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-  <!-- PORTAL COLUMNS GRID -->
-  <main class="portal-grid">
-    <!-- HIANG T10 TOUR CHECKLIST SECTION -->
-    <section class="column" style="grid-column: 1 / -1; margin-top: 15px;">
-      <div class="column-title">
-        <a href="HIANG T10 Tour Checklist (DIGITAL) Aug 2022 NEW.pdf" target="_blank">How to MPA (Click to View Instructions)</a>
-      </div>
-      <ol class="link-list" style="list-style-type: decimal; padding-left: 20px;">
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member IS NOT drawing military disability or retirement pay during T10 tour IAW DAFI 36-2619. <strong style="color: var(--accent-color);">(OPR: Member)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member has provided a copy of their Record Review /Points History (1825 review) RIP from Virtual MPF. <strong style="color: var(--accent-color);">(OPR: Member)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member has CURRENT and PASSING fitness assessment. (Attach current Fitness score sheet from myFitness) <strong style="color: var(--accent-color);">(OPR: CSS or UFPM)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member's T10 tour WILL NOT take them into the Sanctuary zone (18 years to 20 years) Total Active Duty towards eligibility for an AD retirement IAW DAFI 36-2619. <strong style="color: var(--accent-color);">(OPR: CSS)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Enlisted Only: Member's Expiration Term of Service WILL NOT expire before the end of T10 tour IAW DAFI 36-2619. <strong style="color: var(--accent-color);">(OPR: CSS)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member WILL NOT be subject to their Mandatory Separation Date (MSD) before end of T10 Tour IAW AFI 36-2619. <strong style="color: var(--accent-color);">(OPR: CSS)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">Member IS CURRENT with all Individual Medical requirements. NO medical or dental restrictions exist that would preclude member from entering/performing an Active Duty tour IAW DAFMAN 48-123. <strong style="color: var(--accent-color);">(OPR: 154 MDG)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">1825 Waivers: 179 day waiver not required. Waivers will be required once member reaches 1825 days (5 year) over a rolling 6 year period (2190 days). <strong style="color: var(--accent-color);">(OPR: Member/AD Unit)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">(Technicians ONLY) must notify HRO and receive USERRA brief. <strong style="color: var(--accent-color);">(OPR: HRO Employee Benefits)</strong></li>
-        <li style="margin-bottom: 8px; align-items: start; text-align: left;">All personnel employed outside of their T10 tour will submit AF Form 3902, Application and Approval for Off-Duty Employment, prior to beginning of tour or off-duty employment. <strong style="color: var(--accent-color);">(OPR: Member)</strong></li>
-      </ol>
-    </section>
-</main>
+        <!-- ADMIN PANEL (Plug and Play controls) -->
+        <section id="adminPanel" class="hidden bg-white border border-sky-100 rounded-2xl shadow-lg p-6 mb-8 transition-all">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                <h2 class="text-lg font-bold text-pueo-900 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-plus text-sky-600"></i> Plug & Play: Add New Document Link
+                </h2>
+                <button onclick="toggleAdminPanel()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="docForm" onsubmit="addDocument(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Document Title</label>
+                    <input type="text" id="docTitle" required placeholder="e.g., Q3 Network Topology Diagram" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Hyperlink / URL</label>
+                    <input type="url" id="docUrl" required placeholder="https://example.com/your-doc-link" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Category</label>
+                    <select id="docCategory" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="Technical">Technical Specs</option>
+                        <option value="Operations">Operations & Guides</option>
+                        <option value="Legal">Legal & Contracts</option>
+                        <option value="Marketing">Marketing & Sales</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Short Description</label>
+                    <input type="text" id="docDesc" placeholder="Brief details about this document..." class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </div>
+                <div class="md:col-span-2 flex justify-end gap-3 mt-2">
+                    <button type="button" onclick="clearForm()" class="px-4 py-2 border border-slate-200 text-slate-500 rounded-lg hover:bg-slate-50 transition text-sm font-medium">Clear Form</button>
+                    <button type="submit" class="px-5 py-2 bg-pueo-700 hover:bg-pueo-800 text-white rounded-lg transition text-sm font-semibold shadow-sm">Plug In Document</button>
+                </div>
+            </form>
 
-  <!-- CHONOLOG / CHANGELOG FOOTER -->
-  <footer>
-    <div class="changelog-title">System Changelog & Bulletins</div>
-    <ul class="changelog-list">
-      <li><strong>2026-03-30:</strong> Restructured static template. Added custom local storage capabilities.</li>
-      <li><strong>2026-02-15:</strong> Implemented Tactical Red Night Vision interface and offline clock synchronization.</li>
-      <li><strong>2025-11-01:</strong> Migrated to minimalist index clone. Removed bulky external fonts to optimize loadtimes below 100ms.</li>
-    </ul>
-    <p style="margin-top: 15px; text-align: center;">STEPBRIEF Clone — Created for offline resilient utility.</p>
-  </footer>
+            <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                <span class="text-xs text-slate-500">Advanced Portability:</span>
+                <div class="flex gap-2">
+                    <button onclick="exportJSON()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded flex items-center gap-1 transition">
+                        <i class="fa-solid fa-file-export"></i> Export JSON
+                    </button>
+                    <button onclick="triggerImport()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded flex items-center gap-1 transition">
+                        <i class="fa-solid fa-file-import"></i> Import JSON
+                    </button>
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importJSON(event)">
+                    <button onclick="resetToDefault()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded flex items-center gap-1 transition">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Reset Defaults
+                    </button>
+                </div>
+            </div>
+        </section>
 
-  <!-- SCRIPT ENGINE (CLOCKS, THEME, FILTER, BOOKMARKS) -->
-  <script>
-    // 1. Clock Engine
-    function updateClocks() {
-      const now = new Date();
-      
-      // Local Time Clock
-      const lclHours = String(now.getHours()).padStart(2, '0');
-      const lclMinutes = String(now.getMinutes()).padStart(2, '0');
-      const lclSeconds = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('lcl-clock').textContent = `${lclHours}:${lclMinutes}:${lclSeconds}`;
-      
-      // Zulu (UTC) Clock
-      const zHours = String(now.getUTCHours()).padStart(2, '0');
-      const zMinutes = String(now.getUTCMinutes()).padStart(2, '0');
-      const zSeconds = String(now.getUTCSeconds()).padStart(2, '0');
-      document.getElementById('zulu-clock').textContent = `${zHours}:${zMinutes}:${zSeconds}Z`;
-    }
-    setInterval(updateClocks, 1000);
-    updateClocks(); // Initial execution
+        <!-- Search and Categorization Filters -->
+        <section class="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <!-- Dynamic Category Filter Pills -->
+            <div class="flex flex-wrap gap-2 w-full md:w-auto" id="filterContainer">
+                <button onclick="filterCategory('All')" id="btn-All" class="filter-btn active bg-pueo-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm">
+                    All Documents
+                </button>
+                <button onclick="filterCategory('Technical')" id="btn-Technical" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all">
+                    Technical Specs
+                </button>
+                <button onclick="filterCategory('Operations')" id="btn-Operations" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all">
+                    Operations
+                </button>
+                <button onclick="filterCategory('Legal')" id="btn-Legal" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all">
+                    Legal & Contracts
+                </button>
+                <button onclick="filterCategory('Marketing')" id="btn-Marketing" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all">
+                    Marketing
+                </button>
+            </div>
 
-    // 2. Theme Engine
-    function setTheme(themeName) {
-      document.documentElement.setAttribute('data-theme', themeName);
-      localStorage.setItem('selected-theme', themeName);
-    }
-    // Load Saved Theme on Startup
-    const savedTheme = localStorage.getItem('selected-theme') || 'light';
-    setTheme(savedTheme);
+            <!-- Search Bar -->
+            <div class="relative w-full md:w-80">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="searchInput" oninput="searchDocuments()" placeholder="Search documents..." class="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white text-sm shadow-inner">
+            </div>
+        </section>
 
-    // 3. Instant Search Filter Engine
-    const searchInput = document.getElementById('search-input');
-    searchInput.addEventListener('input', function() {
-      const filter = this.value.toLowerCase().trim();
-      const listItems = document.querySelectorAll('.link-list li');
-      const columns = document.querySelectorAll('.column');
+        <!-- Dynamic Documents Grid -->
+        <section>
+            <div id="documentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Javascript will render cards here -->
+            </div>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl">
+                <i class="fa-regular fa-folder-open text-5xl text-slate-300 mb-3"></i>
+                <h3 class="text-lg font-bold text-slate-600">No documents found</h3>
+                <p class="text-slate-400 text-sm mt-1">Try adjusted searches, filters, or add a new document above.</p>
+            </div>
+        </section>
 
-      listItems.forEach(item => {
-        // If there's custom data-keywords, search those plus the anchor text
-        const keywords = item.getAttribute('data-keywords') || '';
-        const linkText = item.querySelector('a') ? item.querySelector('a').textContent.toLowerCase() : '';
-        const textToMatch = `${keywords} ${linkText}`.toLowerCase();
+    </main>
 
-        if (textToMatch.includes(filter)) {
-          item.classList.remove('hidden');
-        } else {
-          item.classList.add('hidden');
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p>&copy; <span id="currentYear"></span> PUEO Wireless. All rights reserved.</p>
+            <div class="flex gap-4">
+                <span class="hover:text-slate-200 cursor-pointer">Security Protocol</span>
+                <span class="hover:text-slate-200 cursor-pointer">Infrastructure Support</span>
+                <span class="hover:text-slate-200 cursor-pointer">Admin Dashboard</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- App JavaScript Logic -->
+    <script>
+        // Default documents to populate portal on first run
+        const defaultDocuments = [
+            {
+                id: "1",
+                title: "Network Architecture Blueprint",
+                category: "Technical",
+                url: "https://example.com/network-blueprint",
+                desc: "High-level diagram outlining the PUEO Wireless suburban node layout and fiber backhaul routing.",
+                addedOn: "2023-10-15"
+            },
+            {
+                id: "2",
+                title: "Standard SLA Agreement",
+                category: "Legal",
+                url: "https://example.com/sla-agreement",
+                desc: "Enterprise Client Service Level Agreement (SLA) covering latency limits and uptime guarantees.",
+                addedOn: "2023-09-12"
+            },
+            {
+                id: "3",
+                title: "Field Deployment Checklist",
+                category: "Operations",
+                url: "https://example.com/deployment-checklist",
+                desc: "Step-by-step procedures for field technicians installing PUEO receiver dishes.",
+                addedOn: "2023-11-02"
+            },
+            {
+                id: "4",
+                title: "Product Range Pitchdeck",
+                category: "Marketing",
+                url: "https://example.com/marketing-pitch",
+                desc: "Client-facing slide presentation showcasing our localized wireless bandwidth packages.",
+                addedOn: "2023-11-20"
+            }
+        ];
+
+        let documents = [];
+        let currentFilter = 'All';
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').innerText = new Date().getFullYear();
+            
+            // Check for locally saved data
+            const savedDocs = localStorage.getItem('pueo_documents');
+            if (savedDocs) {
+                documents = JSON.parse(savedDocs);
+            } else {
+                documents = [...defaultDocuments];
+                saveToLocalStorage();
+            }
+            renderDocuments();
+        });
+
+        // Toggle Admin section
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            panel.classList.toggle('hidden');
         }
-      });
 
-      // Hide an entire column if all its links are hidden
-      columns.forEach(col => {
-        const totalLinks = col.querySelectorAll('.link-list li').length;
-        const hiddenLinks = col.querySelectorAll('.link-list li.hidden').length;
-        if (totalLinks > 0 && totalLinks === hiddenLinks) {
-          col.classList.add('hidden');
-        } else {
-          col.classList.remove('hidden');
+        // Save data helper
+        function saveToLocalStorage() {
+            localStorage.setItem('pueo_documents', JSON.stringify(documents));
         }
-      });
-    });
 
-    // 4. Local Storage Personal Bookmark Engine
-    const customList = document.getElementById('custom-links');
+        // Render Cards dynamically based on active filter and search terms
+        function renderDocuments() {
+            const grid = document.getElementById('documentsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            grid.innerHTML = '';
 
-    function loadCustomBookmarks() {
-      customList.innerHTML = '';
-      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
-      
-      if (bookmarks.length === 0) {
-        customList.innerHTML = `<li style="opacity: 0.6; font-style: italic;">No custom links added yet.</li>`;
-        return;
-      }
+            const filtered = documents.filter(doc => {
+                const matchesCategory = currentFilter === 'All' || doc.category === currentFilter;
+                const matchesSearch = doc.title.toLowerCase().includes(searchVal) || 
+                                      doc.desc.toLowerCase().includes(searchVal) || 
+                                      doc.category.toLowerCase().includes(searchVal);
+                return matchesCategory && matchesSearch;
+            });
 
-      bookmarks.forEach((bm, index) => {
-        const li = document.createElement('li');
-        li.setAttribute('data-keywords', bm.title.toLowerCase());
-        li.innerHTML = `
-          <a href="${bm.url}" target="_blank">${bm.title}</a>
-          <button onclick="deleteBookmark(${index})" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 10px; margin-left: 8px;">✕</button>
-        `;
-        customList.appendChild(li);
-      });
-    }
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
 
-    function addCustomBookmark() {
-      const titleInput = document.getElementById('new-title');
-      const urlInput = document.getElementById('new-url');
-      const title = titleInput.value.trim();
-      let url = urlInput.value.trim();
+            filtered.forEach(doc => {
+                const categoryColors = getCategoryColors(doc.category);
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group";
+                
+                card.innerHTML = `
+                    <div class="p-5">
+                        <div class="flex justify-between items-start gap-2 mb-3">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${categoryColors.badge}">
+                                ${doc.category}
+                            </span>
+                            <button onclick="deleteDocument('${doc.id}')" class="text-slate-300 hover:text-rose-500 transition duration-150 p-1" title="Remove Document">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-base mb-1.5 line-clamp-1 group-hover:text-pueo-700 transition">
+                            ${doc.title}
+                        </h3>
+                        <p class="text-xs text-slate-500 line-clamp-2 min-h-[2.5rem]">
+                            ${doc.desc || 'No description provided.'}
+                        </p>
+                    </div>
+                    
+                    <div class="bg-slate-50 px-5 py-3.5 border-t border-slate-100 flex justify-between items-center text-xs">
+                        <span class="text-slate-400 font-medium">Added: ${doc.addedOn}</span>
+                        <a href="${doc.url}" target="_blank" rel="noopener noreferrer" class="bg-white hover:bg-pueo-600 text-pueo-700 hover:text-white border border-pueo-100 hover:border-pueo-600 px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">
+                            Open Doc <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
-      if (!title || !url) return;
+        // Get matching CSS colors for categories
+        function getCategoryColors(category) {
+            switch(category) {
+                case 'Technical': return { badge: 'bg-indigo-50 text-indigo-700 border border-indigo-100' };
+                case 'Operations': return { badge: 'bg-emerald-50 text-emerald-700 border border-emerald-100' };
+                case 'Legal': return { badge: 'bg-amber-50 text-amber-700 border border-amber-100' };
+                case 'Marketing': return { badge: 'bg-rose-50 text-rose-700 border border-rose-100' };
+                default: return { badge: 'bg-slate-100 text-slate-700' };
+            }
+        }
 
-      // Automatically prepend protocol if user omitted it
-      if (!/^https?:\/\//i.test(url)) {
-        url = 'https://' + url;
-      }
+        // Add Document via form
+        function addDocument(e) {
+            e.preventDefault();
+            const id = Date.now().toString();
+            const title = document.getElementById('docTitle').value.trim();
+            const url = document.getElementById('docUrl').value.trim();
+            const category = document.getElementById('docCategory').value;
+            const desc = document.getElementById('docDesc').value.trim();
+            const addedOn = new Date().toISOString().split('T')[0];
 
-      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
-      bookmarks.push({ title, url });
-      localStorage.setItem('user-bookmarks', JSON.stringify(bookmarks));
-      
-      titleInput.value = '';
-      urlInput.value = '';
-      loadCustomBookmarks();
-    }
+            documents.unshift({ id, title, category, url, desc, addedOn });
+            saveToLocalStorage();
+            renderDocuments();
+            clearForm();
+            
+            // Auto close/scroll or give confirmation
+            alert('Document added successfully!');
+        }
 
-    function deleteBookmark(index) {
-      const bookmarks = JSON.parse(localStorage.getItem('user-bookmarks')) || [];
-      bookmarks.splice(index, 1);
-      localStorage.setItem('user-bookmarks', JSON.stringify(bookmarks));
-      loadCustomBookmarks();
-    }
+        // Clear Form fields
+        function clearForm() {
+            document.getElementById('docForm').reset();
+        }
 
-    // Initial load of custom bookmarks
-    loadCustomBookmarks();
-  </script>
+        // Delete document link
+        function deleteDocument(id) {
+            if (confirm('Are you sure you want to remove this document link?')) {
+                documents = documents.filter(doc => doc.id !== id);
+                saveToLocalStorage();
+                renderDocuments();
+            }
+        }
+
+        // Filter Category actions
+        function filterCategory(category) {
+            currentFilter = category;
+            
+            // Toggle active pill button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all";
+            });
+
+            const activeBtn = document.getElementById(`btn-${category}`);
+            if (activeBtn) {
+                activeBtn.className = "filter-btn active bg-pueo-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm";
+            }
+
+            renderDocuments();
+        }
+
+        // Search action
+        function searchDocuments() {
+            renderDocuments();
+        }
+
+        // Export data feature
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "pueo_wireless_portal_data.json");
+            dlAnchorElem.click();
+        }
+
+        // Trigger Hidden File Upload
+        function triggerImport() {
+            document.getElementById('importFile').click();
+        }
+
+        // Import data feature
+        function importJSON(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(fileLoadedEvent) {
+                try {
+                    const parsedData = JSON.parse(fileLoadedEvent.target.result);
+                    if (Array.isArray(parsedData)) {
+                        documents = parsedData;
+                        saveToLocalStorage();
+                        renderDocuments();
+                        alert('Portal data imported successfully!');
+                    } else {
+                        alert('Invalid data format. Expected an array of documents.');
+                    }
+                } catch (e) {
+                    alert('Error parsing JSON file. Please ensure it is a valid backup.');
+                }
+            };
+            fileReader.readAsText(event.target.files[0], "UTF-8");
+        }
+
+        // Reset to Defaults
+        function resetToDefault() {
+            if (confirm('This will wipe all custom entries and restore defaults. Continue?')) {
+                documents = [...defaultDocuments];
+                saveToLocalStorage();
+                renderDocuments();
+            }
+        }
+    </script>
 </body>
 </html>
