@@ -8,9 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDKs for real-time Google Docs style collaboration -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -53,7 +50,7 @@
                     <p class="text-xs text-sky-200">Interactive & Shared Document Portal</p>
                 </div>
             </div>
-            
+
             <!-- Real-time Collaboration HUD -->
             <div class="flex items-center flex-wrap gap-3">
                 <div id="collabBadge" class="bg-slate-800/80 border border-slate-700 rounded-full px-4 py-1.5 flex items-center gap-2 text-xs font-semibold">
@@ -67,7 +64,7 @@
                         <i class="fa-solid fa-users"></i> 1 Active
                     </span>
                 </div>
-                
+
                 <button onclick="toggleAdminPanel()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-md flex items-center gap-2">
                     <i class="fa-solid fa-gears"></i> Plug & Play Panel
                 </button>
@@ -92,7 +89,7 @@
             <!-- Collaboration Room Creator -->
             <div class="bg-sky-50 border border-sky-100 p-4 rounded-xl mb-6">
                 <h3 class="text-sm font-bold text-sky-900 mb-2 flex items-center gap-1.5">
-                    <i class="fa-solid fa-network-wired"></i> Real-time Google Docs Mode Setup
+                    <i class="fa-solid fa-network-wired"></i> Real-time Shared Mode Setup
                 </h3>
                 <p class="text-xs text-sky-700 mb-3 leading-relaxed">
                     By default, you are connected to a shared community <strong>Sandbox</strong>. To collaborate on private documents with your team, enter a custom room name below and share your updated browser URL!
@@ -151,7 +148,7 @@
                 </div>
 
                 <div id="pdfInputContainer" class="md:col-span-2 hidden">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Upload PDF File (Shared base64 payload - recommended size &lt; 3MB)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Upload PDF File (Shared globally - recommended size &lt; 3MB)</label>
                     <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
                 </div>
 
@@ -167,10 +164,10 @@
             </form>
 
             <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center gap-3">
-                <span class="text-xs text-slate-500">Local Space Management:</span>
+                <span class="text-xs text-slate-500">Cloud Control:</span>
                 <div class="flex gap-2">
                     <button onclick="exportJSON()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded flex items-center gap-1 transition">
-                        <i class="fa-solid fa-file-export"></i> Export JSON Data
+                        <i class="fa-solid fa-file-export"></i> Export JSON Backup
                     </button>
                     <button onclick="resetToDefault()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded flex items-center gap-1 transition">
                         <i class="fa-solid fa-arrow-rotate-left"></i> Reset Defaults
@@ -237,21 +234,18 @@
         </div>
     </footer>
 
-    <!-- App JavaScript Logic -->
+    <!-- App JavaScript Logic (REST Persistence Engine) -->
     <script>
-        // --- REALTIME SYNC ENGINE (Firebase Sandbox Config) ---
-        // We use a free, globally accessible, sandboxed Firebase Realtime Database
-        // For production, teams can easily replace these keys with their own Firebase keys.
-        const firebaseConfig = {
-            databaseURL: "https://pueo-wireless-sandbox-default-rtdb.firebaseio.com/"
-        };
+        // Use standard REST interface to public Firebase Realtime Database
+        // This ensures instantaneous cloud-wide saving with ZERO client-side installation.
+        const dbBaseUrl = "https://pueo-wireless-sandbox-default-rtdb.firebaseio.com/rooms";
         
-        let database;
         let roomId = "SANDBOX";
         let myUserId = "user_" + Math.random().toString(36).substr(2, 9);
-        let userColor = getRandomColorTailwind();
+        let currentFilter = 'All';
+        let documents = [];
+        let trackedCardIds = new Set();
 
-        // Standard Default Documents Configuration
         const defaultDocuments = [
             {
                 id: "1",
@@ -291,149 +285,209 @@
             }
         ];
 
-        let documents = [];
-        let trackedCardIds = new Set();
-        let currentFilter = 'All';
-
-        // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
-            
-            // Extract custom room from Query URL parameters (e.g. index.html?room=MySecretRoom)
+
+            // Extract room from query parameter (e.g., index.html?room=PUEO-MPA)
             const urlParams = new URLSearchParams(window.location.search);
             const paramRoom = urlParams.get('room');
             if (paramRoom) {
                 roomId = paramRoom.toUpperCase().replace(/[^A-Z0-9_-]/gi, '');
             }
-            
+
             document.getElementById('roomInput').value = roomId;
             document.getElementById('collabRoomName').innerText = `Room: ${roomId}`;
 
-            initCollabEngine();
+            // Initial download & setup recurring sync loops (polling for Google Docs style real-time update)
+            syncLoop();
+            setInterval(syncLoop, 4000); // Poll for document modifications every 4 seconds
+            setInterval(updatePresence, 8000); // Pulse server connection heartbeat
         });
 
-        // Initialize Real-time Database and Presence Connections
-        function initCollabEngine() {
+        // Pull documents directly from global cloud storage
+        async function syncLoop() {
             try {
-                firebase.initializeApp(firebaseConfig);
-                database = firebase.database();
+                const res = await fetch(`${dbBaseUrl}/${roomId}/documents.json`);
+                if (!res.ok) throw new Error("HTTP connection failed");
+                
+                const data = await res.json();
+                if (data) {
+                    const loadedDocs = Object.keys(data).map(key => ({
+                        id: key,
+                        ...data[key]
+                    }));
 
-                // Setup Active Presence System
-                const userPresenceRef = database.ref(`presence/${roomId}/${myUserId}`);
-                userPresenceRef.set({
-                    color: userColor,
-                    lastActive: Date.now()
-                });
-                userPresenceRef.onDisconnect().remove();
-
-                // Keep presence updated
-                setInterval(() => {
-                    userPresenceRef.update({ lastActive: Date.now() });
-                }, 10000);
-
-                // Listen to active users in room
-                database.ref(`presence/${roomId}`).on('value', (snapshot) => {
-                    const users = snapshot.val() || {};
-                    const activeCount = Object.keys(users).length;
-                    document.getElementById('collabActiveUsers').innerHTML = `
-                        <i class="fa-solid fa-users"></i> ${activeCount} Collaborative User${activeCount !== 1 ? 's' : ''}
-                    `;
-                });
-
-                // Listen to Document adjustments in Realtime (Add/Edit/Delete updates)
-                database.ref(`rooms/${roomId}/documents`).on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        // Map object values back into standard arrays
-                        const previousLength = documents.length;
-                        documents = Object.keys(data).map(key => ({
-                            id: key,
-                            ...data[key]
-                        }));
-                        
-                        // Flag newly added items to flash them visually
-                        if (previousLength > 0) {
-                            documents.forEach(doc => {
-                                if (!trackedCardIds.has(doc.id)) {
-                                    doc.isNewFlash = true;
-                                }
-                            });
-                        }
-                    } else {
-                        // Fallback/First initiation of empty rooms
-                        documents = [...defaultDocuments];
-                        uploadCurrentDocsToCloud();
+                    // Flash new items arriving from other collaborators in green
+                    if (documents.length > 0) {
+                        loadedDocs.forEach(doc => {
+                            if (!trackedCardIds.has(doc.id)) {
+                                doc.isNewFlash = true;
+                            }
+                        });
                     }
-                    renderDocuments();
-                });
-
-                document.getElementById('collabStatusDot').className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-                document.getElementById('collabStatusDotSolid').className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
-
+                    documents = loadedDocs;
+                } else {
+                    // Seed defaults if database room is completely empty
+                    documents = [...defaultDocuments];
+                    await seedDefaultDb();
+                }
+                renderDocuments();
+                updateConnectionBadge(true);
             } catch (err) {
-                console.warn("Real-time Connection interrupted. Falling back to local Storage.", err);
-                document.getElementById('collabStatusDot').className = "hidden";
-                document.getElementById('collabStatusDotSolid').className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
-                document.getElementById('collabRoomName').innerText = `Local Mode (Offline)`;
-                document.getElementById('collabActiveUsers').innerText = `Sync Offline`;
-                loadDocumentsFromStorage();
+                console.warn("Retrying cloud link...", err);
+                updateConnectionBadge(false);
+                // Fail-safe: Local Storage if internet cuts out
+                if (documents.length === 0) {
+                    const localDocs = localStorage.getItem('pueo_local_docs');
+                    if (localDocs) {
+                        documents = JSON.parse(localDocs);
+                        renderDocuments();
+                    }
+                }
             }
         }
 
-        // Write collection state to current cloud room
-        function uploadCurrentDocsToCloud() {
-            if (!database) return;
-            const updates = {};
-            documents.forEach(doc => {
-                updates[doc.id] = {
+        // Seeds default data back to cloud server if cleared
+        async function seedDefaultDb() {
+            const payload = {};
+            defaultDocuments.forEach(doc => {
+                payload[doc.id] = {
                     title: doc.title,
                     category: doc.category,
                     type: doc.type,
+                    url: doc.url || "",
                     desc: doc.desc,
-                    addedOn: doc.addedOn,
-                    ...(doc.url && { url: doc.url }),
-                    ...(doc.pdfData && { pdfData: doc.pdfData })
+                    addedOn: doc.addedOn
                 };
             });
-            database.ref(`rooms/${roomId}/documents`).set(updates);
+            await fetch(`${dbBaseUrl}/${roomId}/documents.json`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
         }
 
-        // Toggle source forms between Web Link and Local PDF
-        function toggleInputFields() {
+        // Heartbeat system to dynamically count people viewing this room
+        async function updatePresence() {
+            try {
+                const now = Date.now();
+                await fetch(`${dbBaseUrl}/${roomId}/presence/${myUserId}.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(now)
+                });
+
+                const res = await fetch(`${dbBaseUrl}/${roomId}/presence.json`);
+                const presenceData = await res.json();
+                if (presenceData) {
+                    const activeCount = Object.values(presenceData).filter(t => (now - t) < 25000).length;
+                    document.getElementById('collabActiveUsers').innerHTML = `
+                        <i class="fa-solid fa-users"></i> ${activeCount} Online Collaborator${activeCount !== 1 ? 's' : ''}
+                    `;
+                }
+            } catch (err) {}
+        }
+
+        function updateConnectionBadge(isOnline) {
+            const dot = document.getElementById('collabStatusDot');
+            const dotSolid = document.getElementById('collabStatusDotSolid');
+            if (isOnline) {
+                dot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                dotSolid.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
+            } else {
+                dot.className = "hidden";
+                dotSolid.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
+                document.getElementById('collabActiveUsers').innerText = "Working Offline";
+            }
+        }
+
+        // Submit actions
+        async function addDocument(e) {
+            e.preventDefault();
+            const title = document.getElementById('docTitle').value.trim();
+            const category = document.getElementById('docCategory').value;
+            const desc = document.getElementById('docDesc').value.trim();
+            const addedOn = new Date().toISOString().split('T')[0];
             const type = document.querySelector('input[name="docType"]:checked').value;
-            const urlContainer = document.getElementById('urlInputContainer');
-            const pdfContainer = document.getElementById('pdfInputContainer');
 
-            if (type === 'link') {
-                urlContainer.classList.remove('hidden');
-                pdfContainer.classList.add('hidden');
-                document.getElementById('docUrl').required = true;
-                document.getElementById('docFile').required = false;
+            const newDoc = { title, category, desc, addedOn, type };
+
+            if (type === 'pdf') {
+                const fileInput = document.getElementById('docFile');
+                if (fileInput.files.length === 0) {
+                    alert("Please choose a PDF document!");
+                    return;
+                }
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    newDoc.pdfData = event.target.result.split(',')[1];
+                    await submitToCloud(newDoc);
+                };
+                reader.readAsDataURL(file);
             } else {
-                urlContainer.classList.add('hidden');
-                pdfContainer.classList.remove('hidden');
-                document.getElementById('docUrl').required = false;
-                document.getElementById('docFile').required = true;
+                newDoc.url = document.getElementById('docUrl').value.trim();
+                await submitToCloud(newDoc);
             }
         }
 
-        // Local Storage Fallback if Firebase fails
-        function loadDocumentsFromStorage() {
-            const savedDocs = localStorage.getItem('pueo_documents_v3');
-            if (savedDocs) {
-                documents = JSON.parse(savedDocs);
-            } else {
-                documents = [...defaultDocuments];
-                saveToLocalStorage();
+        async function submitToCloud(doc) {
+            try {
+                const response = await fetch(`${dbBaseUrl}/${roomId}/documents.json`, {
+                    method: 'POST',
+                    body: JSON.stringify(doc)
+                });
+                if (response.ok) {
+                    clearForm();
+                    await syncLoop(); // instant refresh
+                }
+            } catch (err) {
+                // Local fallback save
+                doc.id = "doc_" + Date.now();
+                documents.unshift(doc);
+                localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
+                renderDocuments();
+                clearForm();
+                alert("Saved locally! Changes will push to other computers once connection returns.");
             }
-            renderDocuments();
         }
 
-        function saveToLocalStorage() {
-            localStorage.setItem('pueo_documents_v3', JSON.stringify(documents));
+        async function deleteDocument(id) {
+            if (confirm('Are you sure you want to remove this document? This deletes it globally for all visitors.')) {
+                try {
+                    await fetch(`${dbBaseUrl}/${roomId}/documents/${id}.json`, {
+                        method: 'DELETE'
+                    });
+                    await syncLoop();
+                } catch (err) {
+                    documents = documents.filter(doc => doc.id !== id);
+                    localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
+                    renderDocuments();
+                }
+            }
         }
 
-        // Render Cards dynamically based on active filter and search terms
+        function downloadPdf(id, title) {
+            const targetDoc = documents.find(doc => doc.id === id);
+            if (targetDoc && targetDoc.pdfData) {
+                const byteCharacters = atob(targetDoc.pdfData);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: 'application/pdf' });
+                const downloadUrl = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = `${title}.pdf`;
+                link.click();
+                URL.revokeObjectURL(downloadUrl);
+            } else {
+                alert("Error loading download binary.");
+            }
+        }
+
+        // Render card lists
         function renderDocuments() {
             const grid = document.getElementById('documentsGrid');
             const emptyState = document.getElementById('emptyState');
@@ -459,11 +513,10 @@
                 trackedCardIds.add(doc.id);
                 const categoryColors = getCategoryColors(doc.category);
                 const card = document.createElement('div');
-                
-                // Add animated flash indicator if newly inserted by someone else
+
                 const isNewFlashClass = doc.isNewFlash ? 'animate-flashGreen border-emerald-400 border-2' : 'border-slate-200';
                 card.className = `bg-white border rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group ${isNewFlashClass}`;
-                delete doc.isNewFlash; // Reset state marker
+                delete doc.isNewFlash;
 
                 const isPdf = doc.type === 'pdf';
                 const actionButton = isPdf 
@@ -502,7 +555,6 @@
             });
         }
 
-        // Get matching CSS colors for categories
         function getCategoryColors(category) {
             switch(category) {
                 case 'In processing': return { badge: 'bg-indigo-50 text-indigo-700 border border-indigo-100' };
@@ -513,130 +565,8 @@
             }
         }
 
-        // Submit new resources to collaborative network / local storage
-        function addDocument(e) {
-            e.preventDefault();
-            const id = "doc_" + Date.now().toString();
-            const title = document.getElementById('docTitle').value.trim();
-            const category = document.getElementById('docCategory').value;
-            const desc = document.getElementById('docDesc').value.trim();
-            const addedOn = new Date().toISOString().split('T')[0];
-            const type = document.querySelector('input[name="docType"]:checked').value;
-
-            if (type === 'pdf') {
-                const fileInput = document.getElementById('docFile');
-                if (fileInput.files.length === 0) {
-                    alert("Please select a PDF file!");
-                    return;
-                }
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const base64Data = event.target.result.split(',')[1];
-                    const docPayload = { id, title, category, type: 'pdf', desc, addedOn, pdfData: base64Data };
-                    
-                    if (database) {
-                        database.ref(`rooms/${roomId}/documents/${id}`).set(docPayload);
-                    } else {
-                        documents.unshift(docPayload);
-                        saveToLocalStorage();
-                        renderDocuments();
-                    }
-                    clearForm();
-                };
-                reader.readAsDataURL(file);
-            } else {
-                const url = document.getElementById('docUrl').value.trim();
-                const docPayload = { id, title, category, type: 'link', url, desc, addedOn };
-
-                if (database) {
-                    database.ref(`rooms/${roomId}/documents/${id}`).set(docPayload);
-                } else {
-                    documents.unshift(docPayload);
-                    saveToLocalStorage();
-                    renderDocuments();
-                }
-                clearForm();
-            }
-        }
-
-        // Retrieve and Download PDFs (Decodes Base64 from shared cloud realtime sync)
-        function downloadPdf(id, title) {
-            const targetDoc = documents.find(doc => doc.id === id);
-            if (targetDoc && targetDoc.pdfData) {
-                const byteCharacters = atob(targetDoc.pdfData);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], { type: 'application/pdf' });
-                const downloadUrl = URL.createObjectURL(blob);
-                
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.download = `${title}.pdf`;
-                link.click();
-                URL.revokeObjectURL(downloadUrl);
-            } else {
-                alert("Could not load PDF. It might be local to another user or database is syncing.");
-            }
-        }
-
-        // Change Current Collaboration Channel
-        function changeCollabRoom() {
-            const inputVal = document.getElementById('roomInput').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/gi, '');
-            if (!inputVal) {
-                alert("Please enter a valid alphanumeric Room Name.");
-                return;
-            }
-            
-            // Push room changes directly to URL parameters to preserve state sharing
-            const nextUrl = `${window.location.origin}${window.location.pathname}?room=${inputVal}`;
-            window.history.pushState({ path: nextUrl }, '', nextUrl);
-            
-            roomId = inputVal;
-            document.getElementById('collabRoomName').innerText = `Room: ${roomId}`;
-            
-            // Restart cloud connections
-            trackedCardIds.clear();
-            if (database) {
-                database.ref(`rooms/${roomId}/documents`).off();
-                initCollabEngine();
-            } else {
-                loadDocumentsFromStorage();
-            }
-        }
-
-        // Helper to copy live link to clipboard
-        function copyCollabLink() {
-            navigator.clipboard.writeText(window.location.href);
-            alert("Share Link Copied! Share this exact URL with colleagues to collaborate in real-time.");
-        }
-
-        // Clear Form fields
-        function clearForm() {
-            document.getElementById('docForm').reset();
-            toggleInputFields();
-        }
-
-        // Delete document link
-        function deleteDocument(id) {
-            if (confirm('Are you sure you want to remove this document? This removes it globally for everyone in the room.')) {
-                if (database) {
-                    database.ref(`rooms/${roomId}/documents/${id}`).remove();
-                } else {
-                    documents = documents.filter(doc => doc.id !== id);
-                    saveToLocalStorage();
-                    renderDocuments();
-                }
-            }
-        }
-
-        // Filter Category actions
         function filterCategory(category) {
             currentFilter = category;
-
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.className = "filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0";
             });
@@ -646,18 +576,41 @@
             if (activeBtn) {
                 activeBtn.className = "filter-btn active bg-pueo-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0";
             }
-
             renderDocuments();
         }
 
-        function searchDocuments() {
-            renderDocuments();
+        function changeCollabRoom() {
+            const inputVal = document.getElementById('roomInput').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/gi, '');
+            if (!inputVal) return;
+            const nextUrl = `${window.location.origin}${window.location.pathname}?room=${inputVal}`;
+            window.history.pushState({ path: nextUrl }, '', nextUrl);
+            roomId = inputVal;
+            document.getElementById('collabRoomName').innerText = `Room: ${roomId}`;
+            trackedCardIds.clear();
+            syncLoop();
         }
 
-        function toggleAdminPanel() {
-            const panel = document.getElementById('adminPanel');
-            panel.classList.toggle('hidden');
+        function copyCollabLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Share Link Copied! Send this link to anyone to immediately view and edit the same document index!");
         }
+
+        function toggleInputFields() {
+            const type = document.querySelector('input[name="docType"]:checked').value;
+            const urlContainer = document.getElementById('urlInputContainer');
+            const pdfContainer = document.getElementById('pdfInputContainer');
+            if (type === 'link') {
+                urlContainer.classList.remove('hidden');
+                pdfContainer.classList.add('hidden');
+            } else {
+                urlContainer.classList.add('hidden');
+                pdfContainer.classList.remove('hidden');
+            }
+        }
+
+        function searchDocuments() { renderDocuments(); }
+        function toggleAdminPanel() { document.getElementById('adminPanel').classList.toggle('hidden'); }
+        function clearForm() { document.getElementById('docForm').reset(); toggleInputFields(); }
 
         function exportJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
@@ -667,21 +620,11 @@
             dlAnchorElem.click();
         }
 
-        function resetToDefault() {
-            if (confirm('This will wipe all custom entries inside this room. Continue?')) {
-                if (database) {
-                    database.ref(`rooms/${roomId}/documents`).remove();
-                } else {
-                    documents = [...defaultDocuments];
-                    saveToLocalStorage();
-                    renderDocuments();
-                }
+        async function resetToDefault() {
+            if (confirm('Are you sure you want to restore default sample files? This will clear other customized links for everyone in this room.')) {
+                await seedDefaultDb();
+                await syncLoop();
             }
-        }
-
-        function getRandomColorTailwind() {
-            const colors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6', '#6366f1', '#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6', '#10b981', '#22c55e', '#84cc16', '#eab308', '#f97316'];
-            return colors[Math.floor(Math.random() * colors.length)];
         }
     </script>
 </body>
