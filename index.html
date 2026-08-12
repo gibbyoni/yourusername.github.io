@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUEO Wireless - Collaborative Document Portal</title>
-    <!-- Tailwind CSS for sleek UI styling -->
+    <title>PUEO Wireless - Shared Document Portal</title>
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for icons -->
+    <!-- FontAwesome for professional iconography -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
@@ -21,15 +21,6 @@
                             800: '#075985',
                             900: '#0c4a6e',
                         }
-                    },
-                    keyframes: {
-                        flashGreen: {
-                            '0%, 100%': { backgroundColor: 'transparent' },
-                            '50%': { backgroundColor: '#f0fdf4' }
-                        }
-                    },
-                    animation: {
-                        flashGreen: 'flashGreen 2s ease-in-out'
                     }
                 }
             }
@@ -40,33 +31,20 @@
 
     <!-- Header Section -->
     <header class="bg-gradient-to-r from-pueo-900 via-pueo-800 to-slate-900 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <div class="bg-sky-500 p-2.5 rounded-lg shadow-inner">
-                    <i class="fa-solid fa-wifi text-2xl text-white animate-pulse"></i>
+                    <i class="fa-solid fa-wifi text-2xl text-white"></i>
                 </div>
                 <div>
                     <h1 class="text-2xl font-black tracking-wider uppercase">PUEO Wireless</h1>
-                    <p class="text-xs text-sky-200">Interactive & Shared Document Portal</p>
+                    <p class="text-xs text-sky-200">Centralized Document & Link Repository</p>
                 </div>
             </div>
 
-            <!-- Real-time Collaboration HUD -->
-            <div class="flex items-center flex-wrap gap-3">
-                <div id="collabBadge" class="bg-slate-800/80 border border-slate-700 rounded-full px-4 py-1.5 flex items-center gap-2 text-xs font-semibold">
-                    <span class="relative flex h-2 w-2">
-                        <span id="collabStatusDot" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span id="collabStatusDotSolid" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span id="collabRoomName">Room: Sandbox</span>
-                    <span class="text-slate-500">|</span>
-                    <span id="collabActiveUsers" class="text-sky-400 flex items-center gap-1">
-                        <i class="fa-solid fa-users"></i> 1 Active
-                    </span>
-                </div>
-
-                <button onclick="toggleAdminPanel()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-md flex items-center gap-2">
-                    <i class="fa-solid fa-gears"></i> Plug & Play Panel
+            <div>
+                <button onclick="toggleSubmitPanel()" class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Submit Document or Link
                 </button>
             </div>
         </div>
@@ -75,39 +53,15 @@
     <!-- Main Content Area -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- ADMIN PANEL (Plug and Play & Collaboration Controls) -->
-        <section id="adminPanel" class="hidden bg-white border border-sky-100 rounded-2xl shadow-lg p-6 mb-8 transition-all">
+        <!-- SUBMIT PANEL (Hidden by Default) -->
+        <section id="submitPanel" class="hidden bg-white border border-sky-100 rounded-2xl shadow-lg p-6 mb-8 transition-all">
             <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
                 <h2 class="text-lg font-bold text-pueo-900 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-plus text-sky-600"></i> Plug & Play: Manage Shared Space
+                    <i class="fa-solid fa-circle-plus text-sky-600"></i> Add New Document to Portal
                 </h2>
-                <button onclick="toggleAdminPanel()" class="text-slate-400 hover:text-slate-600">
+                <button onclick="toggleSubmitPanel()" class="text-slate-400 hover:text-slate-600">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
-            </div>
-
-            <!-- Collaboration Room Creator -->
-            <div class="bg-sky-50 border border-sky-100 p-4 rounded-xl mb-6">
-                <h3 class="text-sm font-bold text-sky-900 mb-2 flex items-center gap-1.5">
-                    <i class="fa-solid fa-network-wired"></i> Real-time Shared Mode Setup
-                </h3>
-                <p class="text-xs text-sky-700 mb-3 leading-relaxed">
-                    By default, you are connected to the shared community <strong>SANDBOX</strong>. To collaborate on private documents with your team, enter a custom room name below and share your updated browser URL!
-                </p>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="relative flex-grow">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs font-semibold">
-                            ROOM ID:
-                        </span>
-                        <input type="text" id="roomInput" placeholder="e.g., PUEO-Team-West" class="w-full pl-20 pr-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm font-semibold uppercase">
-                    </div>
-                    <button onclick="changeCollabRoom()" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition text-sm shadow-sm shrink-0">
-                        Join / Create Shared Room
-                    </button>
-                    <button onclick="copyCollabLink()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg border border-slate-200 transition text-sm flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-share-nodes"></i> Copy Share Link
-                    </button>
-                </div>
             </div>
 
             <!-- Document Submission Form -->
@@ -121,7 +75,7 @@
                         </label>
                         <label class="inline-flex items-center cursor-pointer">
                             <input type="radio" name="docType" value="pdf" onchange="toggleInputFields()" class="text-pueo-600 focus:ring-pueo-500 h-4 w-4">
-                            <span class="ml-2 text-sm text-slate-700 font-medium">Direct PDF Upload (Downloadable by Team)</span>
+                            <span class="ml-2 text-sm text-slate-700 font-medium">Direct PDF Upload (Downloadable)</span>
                         </label>
                     </div>
                 </div>
@@ -132,7 +86,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Category</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Category Tab</label>
                     <select id="docCategory" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
                         <option value="In processing">In processing</option>
                         <option value="MPA">MPA</option>
@@ -148,7 +102,7 @@
                 </div>
 
                 <div id="pdfInputContainer" class="md:col-span-2 hidden">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Upload PDF File (Shared globally - recommended size &lt; 3MB)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Upload PDF File (Saves directly to portal - Max 3MB)</label>
                     <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
                 </div>
 
@@ -159,21 +113,9 @@
 
                 <div class="md:col-span-2 flex justify-end gap-3 mt-2">
                     <button type="button" onclick="clearForm()" class="px-4 py-2 border border-slate-200 text-slate-500 rounded-lg hover:bg-slate-50 transition text-sm font-medium">Clear Form</button>
-                    <button type="submit" class="px-5 py-2 bg-pueo-700 hover:bg-pueo-800 text-white rounded-lg transition text-sm font-semibold shadow-sm">Save & Share Live</button>
+                    <button type="submit" class="px-5 py-2 bg-pueo-700 hover:bg-pueo-800 text-white rounded-lg transition text-sm font-semibold shadow-sm">Add to Website</button>
                 </div>
             </form>
-
-            <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center gap-3">
-                <span class="text-xs text-slate-500">Cloud Control:</span>
-                <div class="flex gap-2">
-                    <button onclick="exportJSON()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded flex items-center gap-1 transition">
-                        <i class="fa-solid fa-file-export"></i> Export JSON Backup
-                    </button>
-                    <button onclick="resetToDefault()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded flex items-center gap-1 transition">
-                        <i class="fa-solid fa-arrow-rotate-left"></i> Reset Defaults
-                    </button>
-                </div>
-            </div>
         </section>
 
         <!-- Search and Categorization Filters -->
@@ -202,49 +144,47 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </span>
-                <input type="text" id="searchInput" oninput="searchDocuments()" placeholder="Search documents..." class="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white text-sm shadow-inner">
+                <input type="text" id="searchInput" oninput="searchDocuments()" placeholder="Search active documents..." class="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white text-sm shadow-inner">
             </div>
         </section>
 
         <!-- Dynamic Documents Grid -->
         <section>
             <div id="documentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Javascript will render cards here -->
+                <!-- Javascript renders dynamic elements here -->
             </div>
 
             <!-- Empty State -->
             <div id="emptyState" class="hidden text-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl">
                 <i class="fa-regular fa-folder-open text-5xl text-slate-300 mb-3"></i>
                 <h3 class="text-lg font-bold text-slate-600">No documents found</h3>
-                <p class="text-slate-400 text-sm mt-1">Try adjusting searches, filters, or add a new document above.</p>
+                <p class="text-slate-400 text-sm mt-1">Try adding a new document or changing your search criteria.</p>
             </div>
         </section>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs">
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p>&copy; <span id="currentYear"></span> PUEO Wireless. All rights reserved.</p>
             <div class="flex gap-4">
-                <span class="hover:text-slate-200 cursor-pointer">Security Protocol</span>
-                <span class="hover:text-slate-200 cursor-pointer">Infrastructure Support</span>
-                <span class="hover:text-slate-200 cursor-pointer">Admin Dashboard</span>
+                <button onclick="resetToDefault()" class="text-rose-400 hover:text-rose-300 transition font-semibold">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> Restore Sample Defaults
+                </button>
             </div>
         </div>
     </footer>
 
-    <!-- App JavaScript Logic (Zero-Config REST Sync Database) -->
+    <!-- App JavaScript Logic (Simple Shared Cloud Storage Engine) -->
     <script>
-        // High-availability open Key-Value Database server (zero auth setup needed)
-        const dbBaseUrl = "https://kvdb.io/H8jK2sP9wQ5e3R2t1Y6u";
+        // High-availability global key-value database bucket
+        const dbUrl = "https://kvdb.io/H8jK2sP9wQ5e3R2t1Y6u/pueo_wireless_global_repo";
 
-        let roomId = "SANDBOX";
-        let myUserId = "user_" + Math.random().toString(36).substring(2, 11);
         let currentFilter = 'All';
         let documents = [];
-        let trackedCardIds = new Set();
 
+        // Sample documents to load if no custom data exists
         const defaultDocuments = [
             {
                 id: "default-1",
@@ -286,124 +226,44 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
-
-            // Extract room from query parameter (e.g., index.html?room=PUEO-MPA)
-            const urlParams = new URLSearchParams(window.location.search);
-            const paramRoom = urlParams.get('room');
-            if (paramRoom) {
-                roomId = paramRoom.toUpperCase().replace(/[^A-Z0-9_-]/gi, '');
-            }
-
-            document.getElementById('roomInput').value = roomId;
-            document.getElementById('collabRoomName').innerText = `Room: ${roomId}`;
-
-            // Initial download & setup recurring sync loops
-            syncLoop();
-            setInterval(syncLoop, 3000); // Poll for new cards every 3 seconds
-            setInterval(updatePresence, 5000); // Pulse connection heartbeat every 5 seconds
+            loadSharedDatabase();
         });
 
-        // Pull documents from shared database
-        async function syncLoop() {
+        // Pull documents from the global cloud space
+        async function loadSharedDatabase() {
             try {
-                const res = await fetch(`${dbBaseUrl}/${roomId}`);
+                const res = await fetch(dbUrl);
                 if (!res.ok) {
                     if (res.status === 404) {
-                        // Room has no custom entries yet, let's load defaults
+                        // DB is clean. Push defaults so the site initializes with dummy content
                         documents = [...defaultDocuments];
                         await saveToCloud(documents);
-                        renderDocuments();
                         return;
                     }
-                    throw new Error("HTTP connection failed");
+                    throw new Error("Cloud fetch failed");
                 }
 
                 const data = await res.json();
                 if (data && Array.isArray(data)) {
-                    // Flash new items arriving from other collaborators in green
-                    if (documents.length > 0) {
-                        data.forEach(doc => {
-                            if (!trackedCardIds.has(doc.id)) {
-                                doc.isNewFlash = true;
-                            }
-                        });
-                    }
                     documents = data;
                 } else {
                     documents = [...defaultDocuments];
-                    await saveToCloud(documents);
                 }
                 renderDocuments();
-                updateConnectionBadge(true);
             } catch (err) {
-                console.warn("Retrying cloud link...", err);
-                updateConnectionBadge(false);
+                console.warn("Using offline localStorage fallback...", err);
                 // Fall-back to LocalStorage if internet cuts out
-                if (documents.length === 0) {
-                    const localDocs = localStorage.getItem(`pueo_local_${roomId}`);
-                    if (localDocs) {
-                        documents = JSON.parse(localDocs);
-                        renderDocuments();
-                    }
+                const localDocs = localStorage.getItem('pueo_local_docs');
+                if (localDocs) {
+                    documents = JSON.parse(localDocs);
+                } else {
+                    documents = [...defaultDocuments];
                 }
+                renderDocuments();
             }
         }
 
-        // Heartbeat system to dynamically count people viewing this room
-        async function updatePresence() {
-            try {
-                const presenceKey = `presence_${roomId}`;
-                const now = Date.now();
-                
-                // Fetch existing presence map
-                let presenceMap = {};
-                try {
-                    const res = await fetch(`${dbBaseUrl}/${presenceKey}`);
-                    if (res.ok) {
-                        presenceMap = await res.json();
-                    }
-                } catch (e) {}
-
-                // Add or update our entry
-                presenceMap[myUserId] = now;
-
-                // Clean up inactive members (older than 15 seconds)
-                const activeMap = {};
-                let activeCount = 0;
-                for (const userId in presenceMap) {
-                    if (now - presenceMap[userId] < 15000) {
-                        activeMap[userId] = presenceMap[userId];
-                        activeCount++;
-                    }
-                }
-
-                // Send active presence back to database
-                await fetch(`${dbBaseUrl}/${presenceKey}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(activeMap)
-                });
-
-                document.getElementById('collabActiveUsers').innerHTML = `
-                    <i class="fa-solid fa-users"></i> ${activeCount} Online Collaborator${activeCount !== 1 ? 's' : ''}
-                `;
-            } catch (err) {}
-        }
-
-        function updateConnectionBadge(isOnline) {
-            const dot = document.getElementById('collabStatusDot');
-            const dotSolid = document.getElementById('collabStatusDotSolid');
-            if (isOnline) {
-                dot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-                dotSolid.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
-            } else {
-                dot.className = "hidden";
-                dotSolid.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
-                document.getElementById('collabActiveUsers').innerText = "Working Offline";
-            }
-        }
-
-        // Submit actions
+        // Add document to list and sync with cloud
         async function addDocument(e) {
             e.preventDefault();
             const title = document.getElementById('docTitle').value.trim();
@@ -423,7 +283,7 @@
                 }
                 const file = fileInput.files[0];
                 if (file.size > 3 * 1024 * 1024) {
-                    alert("PDF files should be less than 3MB for database stability.");
+                    alert("PDF files should be less than 3MB for optimal system speed.");
                     return;
                 }
                 const reader = new FileReader();
@@ -432,6 +292,7 @@
                     documents.unshift(newDoc);
                     await saveToCloud(documents);
                     clearForm();
+                    toggleSubmitPanel();
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -439,35 +300,34 @@
                 documents.unshift(newDoc);
                 await saveToCloud(documents);
                 clearForm();
+                toggleSubmitPanel();
             }
         }
 
+        // Push data to cloud so other users see updates instantly on load/refresh
         async function saveToCloud(docsList) {
-            // Save to local storage cache
-            localStorage.setItem(`pueo_local_${roomId}`, JSON.stringify(docsList));
-            
+            localStorage.setItem('pueo_local_docs', JSON.stringify(docsList));
+            renderDocuments();
+
             try {
-                const response = await fetch(`${dbBaseUrl}/${roomId}`, {
+                await fetch(dbUrl, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(docsList)
                 });
-                if (response.ok) {
-                    renderDocuments();
-                }
             } catch (err) {
-                console.error("Cloud push failed, saved in local cache", err);
-                renderDocuments();
+                console.error("Cloud push failed. Saved locally in current browser.", err);
             }
         }
 
         async function deleteDocument(id) {
-            if (confirm('Are you sure you want to remove this document? This will delete it for everyone in this room.')) {
+            if (confirm('Are you sure you want to delete this document from the portal? This removes it permanently for everyone.')) {
                 documents = documents.filter(doc => doc.id !== id);
                 await saveToCloud(documents);
             }
         }
 
+        // Convert base64 saved PDF back into a downloadable document file
         function downloadPdf(id, title) {
             const targetDoc = documents.find(doc => doc.id === id);
             if (targetDoc && targetDoc.pdfData) {
@@ -486,11 +346,11 @@
                 link.click();
                 URL.revokeObjectURL(downloadUrl);
             } else {
-                alert("Error loading PDF document binary.");
+                alert("Error retrieving saved PDF document.");
             }
         }
 
-        // Render card lists
+        // Render documents strictly sorted into their specific categories
         function renderDocuments() {
             const grid = document.getElementById('documentsGrid');
             const emptyState = document.getElementById('emptyState');
@@ -513,13 +373,9 @@
             }
 
             filtered.forEach(doc => {
-                trackedCardIds.add(doc.id);
                 const categoryColors = getCategoryColors(doc.category);
                 const card = document.createElement('div');
-
-                const isNewFlashClass = doc.isNewFlash ? 'animate-flashGreen border-emerald-400 border-2' : 'border-slate-200';
-                card.className = `bg-white border rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group ${isNewFlashClass}`;
-                delete doc.isNewFlash;
+                card.className = "bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group";
 
                 const isPdf = doc.type === 'pdf';
                 const actionButton = isPdf 
@@ -527,7 +383,7 @@
                          Download PDF <i class="fa-solid fa-file-pdf"></i>
                        </button>`
                     : `<a href="${doc.url}" target="_blank" rel="noopener noreferrer" class="bg-white hover:bg-pueo-600 text-pueo-700 hover:text-white border border-pueo-100 hover:border-pueo-600 px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">
-                         Open Doc <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                         Open Link <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                        </a>`;
 
                 card.innerHTML = `
@@ -536,7 +392,7 @@
                             <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${categoryColors.badge}">
                                 ${doc.category}
                             </span>
-                            <button onclick="deleteDocument('${doc.id}')" class="text-slate-300 hover:text-rose-500 transition duration-150 p-1" title="Remove Document">
+                            <button onclick="deleteDocument('${doc.id}')" class="text-slate-300 hover:text-rose-500 transition duration-150 p-1" title="Delete Document">
                                 <i class="fa-solid fa-trash-can text-sm"></i>
                             </button>
                         </div>
@@ -574,28 +430,13 @@
                 btn.className = "filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0";
             });
 
+            // Handle spaces in "In processing" category button selection
             const sanitizedId = category.replace(/\s+/g, '-');
             const activeBtn = document.getElementById(`btn-${sanitizedId}`);
             if (activeBtn) {
                 activeBtn.className = "filter-btn active bg-pueo-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0";
             }
             renderDocuments();
-        }
-
-        function changeCollabRoom() {
-            const inputVal = document.getElementById('roomInput').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/gi, '');
-            if (!inputVal) return;
-            const nextUrl = `${window.location.origin}${window.location.pathname}?room=${inputVal}`;
-            window.history.pushState({ path: nextUrl }, '', nextUrl);
-            roomId = inputVal;
-            document.getElementById('collabRoomName').innerText = `Room: ${roomId}`;
-            trackedCardIds.clear();
-            syncLoop();
-        }
-
-        function copyCollabLink() {
-            navigator.clipboard.writeText(window.location.href);
-            alert("Share Link Copied! Send this link to anyone to immediately view, upload and delete documents in this room!");
         }
 
         function toggleInputFields() {
@@ -612,19 +453,11 @@
         }
 
         function searchDocuments() { renderDocuments(); }
-        function toggleAdminPanel() { document.getElementById('adminPanel').classList.toggle('hidden'); }
+        function toggleSubmitPanel() { document.getElementById('submitPanel').classList.toggle('hidden'); }
         function clearForm() { document.getElementById('docForm').reset(); toggleInputFields(); }
 
-        function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `pueo_wireless_${roomId.toLowerCase()}_backup.json`);
-            dlAnchorElem.click();
-        }
-
         async function resetToDefault() {
-            if (confirm('Are you sure you want to restore default sample files? This will clear other customized links for everyone in this room.')) {
+            if (confirm('Warning: This will restore default mock documents and wipe all currently uploaded links/PDFs. Continue?')) {
                 documents = [...defaultDocuments];
                 await saveToCloud(documents);
             }
