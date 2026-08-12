@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for professional iconography -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -27,6 +28,25 @@
             }
         }
     </script>
+
+    <style>
+        /* Custom scrollbar styling for description boxes */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F5F5F5;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #C62828; /* PUEO Crimson Red */
+            border-radius: 4px;
+            border: 1px solid #FFB300; /* PUEO Yellow Border */
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #B71C1C;
+        }
+    </style>
 </head>
 <body class="bg-neutral-100 text-neutral-800 min-h-screen flex flex-col font-sans">
 
@@ -43,8 +63,13 @@
                 </div>
             </div>
 
-            <div>
-                <button onclick="toggleSubmitPanel()" class="bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center gap-2 border border-pueo-yellow">
+            <!-- Sync Status Indicator and Upload CTA -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
+                <div id="syncStatus" class="flex items-center gap-2 px-3.5 py-1.5 bg-neutral-900 border border-neutral-700 rounded-full text-xs font-semibold">
+                    <span class="h-2 w-2 rounded-full bg-neutral-500 animate-pulse" id="syncDot"></span>
+                    <span id="syncText" class="text-neutral-400">Connecting...</span>
+                </div>
+                <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Submit Document or Link
                 </button>
             </div>
@@ -111,7 +136,7 @@
                 <!-- Expanded Description Area for Advanced Instructions -->
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Instructions / Description (Detailed guidelines)</label>
-                    <textarea id="docDesc" rows="4" placeholder="Enter detailed, advanced instructions on how to fill out, process, or reference this document..." class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm font-normal leading-relaxed"></textarea>
+                    <textarea id="docDesc" rows="5" placeholder="Enter detailed, advanced instructions on how to fill out, process, or reference this document..." class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm font-normal leading-relaxed"></textarea>
                 </div>
 
                 <div class="md:col-span-2 flex justify-end gap-3 mt-2">
@@ -123,7 +148,7 @@
 
         <!-- Search and Categorization Filters -->
         <section class="mb-8 flex flex-col lg:flex-row justify-between items-center gap-4">
-            <!-- Dynamic Category Filter Pills (Yellow / Red / Black Accents) -->
+            <!-- Dynamic Category Filter Pills -->
             <div class="flex flex-wrap gap-2 w-full lg:w-auto overflow-x-auto pb-1" id="filterContainer">
                 <button onclick="filterCategory('All')" id="btn-All" class="filter-btn active bg-pueo-black text-pueo-yellow border-2 border-pueo-yellow px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0">
                     All Documents
@@ -167,60 +192,85 @@
 
     </main>
 
-    <!-- Footer -->
+    <!-- Footer (No Reset Button) -->
     <footer class="bg-pueo-black text-neutral-400 py-8 border-t-4 border-pueo-red text-xs mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p>&copy; <span id="currentYear"></span> PUEO Wireless. All rights reserved.</p>
             <div class="flex gap-4">
-                <button onclick="clearAllDocuments()" class="text-pueo-red hover:text-red-400 transition font-bold uppercase tracking-wider">
-                    <i class="fa-solid fa-trash-can"></i> Clear All Documents
-                </button>
+                <span class="text-neutral-500 font-semibold tracking-wider uppercase">PUEO Document Control</span>
             </div>
         </div>
     </footer>
 
     <!-- App JavaScript Logic -->
     <script>
-        // Unique global bucket key for PUEO Wireless
-        const dbUrl = "https://kvdb.io/H8jK2sP9wQ5e3R2t1Y6u/pueo_wireless_global_repo_clean";
+        // High-Capacity, CORS-friendly Firebase Realtime Database Endpoint
+        // Fully supports large payloads (Base64 PDF uploads up to several Megabytes)
+        const dbUrl = "https://pueo-wireless-shared-rtdb.firebaseio.com/documents.json";
 
         let currentFilter = 'All';
         let documents = [];
-        let editingId = null; // Track document being edited
+        let editingId = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
             loadSharedDatabase();
+            
+            // Periodically fetch backend updates (every 8 seconds) so changes propagate to other devices automatically
+            setInterval(loadSharedDatabase, 8000);
         });
+
+        // Update sync status indicator
+        function updateSyncStatus(connected, message) {
+            const dot = document.getElementById('syncDot');
+            const text = document.getElementById('syncText');
+            
+            if (connected) {
+                dot.className = "h-2.5 w-2.5 rounded-full bg-emerald-500";
+                text.className = "text-emerald-400";
+                text.innerText = message || "Connected to Cloud";
+            } else {
+                dot.className = "h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse";
+                text.className = "text-amber-400";
+                text.innerText = message || "Offline (Local Only)";
+            }
+        }
 
         // Pull documents from the global cloud space
         async function loadSharedDatabase() {
             try {
                 const res = await fetch(dbUrl);
                 if (!res.ok) {
-                    if (res.status === 404) {
-                        documents = [];
-                        await saveToCloud(documents);
-                        return;
-                    }
-                    throw new Error("Cloud fetch failed");
+                    throw new Error("Cloud fetch rejected: " + res.status);
                 }
 
                 const data = await res.json();
-                if (data && Array.isArray(data)) {
+                
+                // Firebase REST returns null if database path is empty
+                if (data === null) {
+                    documents = [];
+                } else if (Array.isArray(data)) {
                     documents = data;
+                } else if (typeof data === 'object') {
+                    // Fallback formatting check if database structures nested
+                    documents = Object.values(data);
                 } else {
                     documents = [];
                 }
+
+                // Sync local browser storage cache with retrieved database content
+                localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
+                updateSyncStatus(true, "Connected to Cloud");
                 renderDocuments();
             } catch (err) {
-                console.warn("Using offline localStorage fallback...", err);
+                console.warn("Using local cache fallback sync...", err);
                 const localDocs = localStorage.getItem('pueo_local_docs');
                 if (localDocs) {
                     documents = JSON.parse(localDocs);
                 } else {
                     documents = [];
                 }
+                updateSyncStatus(false, "Syncing Error (Offline fallback)");
                 renderDocuments();
             }
         }
@@ -236,7 +286,6 @@
             let targetDoc;
 
             if (editingId) {
-                // Editing mode - fetch existing to preserve creation date
                 const original = documents.find(doc => doc.id === editingId);
                 targetDoc = { 
                     ...original, 
@@ -246,7 +295,6 @@
                     type 
                 };
             } else {
-                // Add mode
                 const id = "doc_" + Date.now() + "_" + Math.random().toString(36).substring(2, 5);
                 const addedOn = new Date().toISOString().split('T')[0];
                 targetDoc = { id, title, category, desc, addedOn, type };
@@ -255,37 +303,36 @@
             if (type === 'pdf') {
                 const fileInput = document.getElementById('docFile');
                 if (fileInput.files.length === 0) {
-                    // If editing, they might choose to keep the old PDF
                     if (editingId && documents.find(d => d.id === editingId).pdfData) {
                         targetDoc.pdfData = documents.find(d => d.id === editingId).pdfData;
                         delete targetDoc.url;
                         saveDocumentFinal(targetDoc);
                     } else {
-                        alert("Please choose a PDF document!");
+                        alert("Please select a PDF file to upload!");
                         return;
                     }
                 } else {
                     const file = fileInput.files[0];
-                    if (file.size > 3 * 1024 * 1024) {
-                        alert("PDF files should be less than 3MB for optimal database synchronization.");
+                    if (file.size > 3.5 * 1024 * 1024) {
+                        alert("PDF file is too large! Please choose a compressed PDF under 3.5MB to ensure flawless cross-device cloud sync.");
                         return;
                     }
                     const reader = new FileReader();
                     reader.onload = async function(event) {
                         targetDoc.pdfData = event.target.result.split(',')[1];
-                        delete targetDoc.url; // Remove link property if converted to PDF
+                        delete targetDoc.url;
                         saveDocumentFinal(targetDoc);
                     };
                     reader.readAsDataURL(file);
                 }
             } else {
                 targetDoc.url = document.getElementById('docUrl').value.trim();
-                delete targetDoc.pdfData; // Remove pdf property if converted to link
+                delete targetDoc.pdfData;
                 saveDocumentFinal(targetDoc);
             }
         }
 
-        // Finalize list updating (inserts or modifies inline) and publishes to cloud
+        // Finalize list updating and publish globally
         async function saveDocumentFinal(doc) {
             if (editingId) {
                 const index = documents.findIndex(d => d.id === editingId);
@@ -298,7 +345,7 @@
 
             await saveToCloud(documents);
             clearForm();
-            toggleSubmitPanel(); // Close submitting form panel
+            toggleSubmitPanel();
         }
 
         // Populates form elements and scroll user into editing focus
@@ -324,7 +371,7 @@
 
             if (doc.type === 'pdf') {
                 radioPdf.checked = true;
-                document.getElementById('docFile').value = ''; // Clean upload file input box
+                document.getElementById('docFile').value = ''; 
                 document.getElementById('pdfHelpText').classList.remove('hidden');
             } else {
                 radioLink.checked = true;
@@ -345,18 +392,25 @@
             renderDocuments();
 
             try {
-                await fetch(dbUrl, {
-                    method: 'PUT',
+                updateSyncStatus(false, "Uploading to Cloud...");
+                const response = await fetch(dbUrl, {
+                    method: 'PUT', // Overwrites the database array completely with correct updated list
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(docsList)
                 });
+                if (!response.ok) {
+                    throw new Error("PUT rejected with status " + response.status);
+                }
+                updateSyncStatus(true, "Connected to Cloud");
             } catch (err) {
-                console.error("Cloud push failed. Saved locally in current browser.", err);
+                console.error("Cloud upload rejected.", err);
+                alert("The cloud database rejected the update. Your document was saved locally, but will not sync across other devices until connection is restored.");
+                updateSyncStatus(false, "Upload Error (Saved locally)");
             }
         }
 
         async function deleteDocument(id) {
-            if (confirm('Are you sure you want to delete this document? This removes it permanently for everyone.')) {
+            if (confirm('Are you sure you want to delete this document? This removes it permanently across all platforms.')) {
                 documents = documents.filter(doc => doc.id !== id);
                 if (editingId === id) {
                     clearForm();
@@ -369,26 +423,30 @@
         function downloadPdf(id, title) {
             const targetDoc = documents.find(doc => doc.id === id);
             if (targetDoc && targetDoc.pdfData) {
-                const byteCharacters = atob(targetDoc.pdfData);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], { type: 'application/pdf' });
-                const downloadUrl = URL.createObjectURL(blob);
+                try {
+                    const byteCharacters = atob(targetDoc.pdfData);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: 'application/pdf' });
+                    const downloadUrl = URL.createObjectURL(blob);
 
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.download = `${title}.pdf`;
-                link.click();
-                URL.revokeObjectURL(downloadUrl);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = `${title}.pdf`;
+                    link.click();
+                    URL.revokeObjectURL(downloadUrl);
+                } catch(e) {
+                    alert("Error unpacking PDF data. Please re-upload or edit the file.");
+                }
             } else {
-                alert("Error retrieving saved PDF document.");
+                alert("No PDF document data associated with this entry.");
             }
         }
 
-        // Render documents strictly sorted into their specific categories
+        // Render documents sorted into their specific categories
         function renderDocuments() {
             const grid = document.getElementById('documentsGrid');
             const emptyState = document.getElementById('emptyState');
@@ -398,7 +456,7 @@
             const filtered = documents.filter(doc => {
                 const matchesCategory = currentFilter === 'All' || doc.category === currentFilter;
                 const matchesSearch = doc.title.toLowerCase().includes(searchVal) || 
-                                      doc.desc.toLowerCase().includes(searchVal) || 
+                                      (doc.desc && doc.desc.toLowerCase().includes(searchVal)) || 
                                       doc.category.toLowerCase().includes(searchVal);
                 return matchesCategory && matchesSearch;
             });
@@ -443,9 +501,9 @@
                             ${isPdf ? '<i class="fa-solid fa-file-pdf text-pueo-red"></i>' : '<i class="fa-solid fa-link text-pueo-yellow"></i>'}
                             ${doc.title}
                         </h3>
-                        
-                        <!-- Embedded Instructions Text Box -->
-                        <div class="mt-1 bg-neutral-50 p-2.5 rounded border border-neutral-200 flex-grow max-h-36 overflow-y-auto">
+
+                        <!-- Embedded Instructions Text Box with custom scroll bar -->
+                        <div class="mt-1 bg-neutral-50 p-2.5 rounded border border-neutral-200 flex-grow max-h-36 overflow-y-auto custom-scrollbar">
                             <h4 class="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mb-1">Instructions</h4>
                             <p class="text-xs text-neutral-600 whitespace-pre-wrap leading-relaxed">${doc.desc || 'No specific guidelines provided.'}</p>
                         </div>
@@ -520,7 +578,7 @@
 
         function searchDocuments() { renderDocuments(); }
         function toggleSubmitPanel() { document.getElementById('submitPanel').classList.toggle('hidden'); }
-        
+
         function clearForm() {
             document.getElementById('docForm').reset();
             editingId = null;
@@ -528,14 +586,6 @@
             document.getElementById('formSubmitBtn').innerText = "Add to Website";
             document.getElementById('pdfHelpText').classList.add('hidden');
             toggleInputFields();
-        }
-
-        async function clearAllDocuments() {
-            if (confirm('Warning: This will permanently wipe all uploaded links and PDF documents from the global system database. Continue?')) {
-                documents = [];
-                await saveToCloud(documents);
-                clearForm();
-            }
         }
     </script>
 </body>
