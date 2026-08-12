@@ -76,7 +76,7 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- ADMIN PANEL (Plug and Play & Collaboration Controls) -->
-        <section id="adminPanel" class="hidden bg-white border border-sky-100 rounded-2xl shadow-lg p-6 mb-8 transition-all animate-fadeIn">
+        <section id="adminPanel" class="hidden bg-white border border-sky-100 rounded-2xl shadow-lg p-6 mb-8 transition-all">
             <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
                 <h2 class="text-lg font-bold text-pueo-900 flex items-center gap-2">
                     <i class="fa-solid fa-circle-plus text-sky-600"></i> Plug & Play: Manage Shared Space
@@ -92,7 +92,7 @@
                     <i class="fa-solid fa-network-wired"></i> Real-time Shared Mode Setup
                 </h3>
                 <p class="text-xs text-sky-700 mb-3 leading-relaxed">
-                    By default, you are connected to a shared community <strong>Sandbox</strong>. To collaborate on private documents with your team, enter a custom room name below and share your updated browser URL!
+                    By default, you are connected to the shared community <strong>SANDBOX</strong>. To collaborate on private documents with your team, enter a custom room name below and share your updated browser URL!
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3">
                     <div class="relative flex-grow">
@@ -234,21 +234,20 @@
         </div>
     </footer>
 
-    <!-- App JavaScript Logic (REST Persistence Engine) -->
+    <!-- App JavaScript Logic (Zero-Config REST Sync Database) -->
     <script>
-        // Use standard REST interface to public Firebase Realtime Database
-        // This ensures instantaneous cloud-wide saving with ZERO client-side installation.
-        const dbBaseUrl = "https://pueo-wireless-sandbox-default-rtdb.firebaseio.com/rooms";
-        
+        // High-availability open Key-Value Database server (zero auth setup needed)
+        const dbBaseUrl = "https://kvdb.io/H8jK2sP9wQ5e3R2t1Y6u";
+
         let roomId = "SANDBOX";
-        let myUserId = "user_" + Math.random().toString(36).substr(2, 9);
+        let myUserId = "user_" + Math.random().toString(36).substring(2, 11);
         let currentFilter = 'All';
         let documents = [];
         let trackedCardIds = new Set();
 
         const defaultDocuments = [
             {
-                id: "1",
+                id: "default-1",
                 title: "Network Architecture Blueprint",
                 category: "In processing",
                 type: "link",
@@ -257,7 +256,7 @@
                 addedOn: "2023-10-15"
             },
             {
-                id: "2",
+                id: "default-2",
                 title: "Standard SLA Agreement",
                 category: "LES",
                 type: "link",
@@ -266,7 +265,7 @@
                 addedOn: "2023-09-12"
             },
             {
-                id: "3",
+                id: "default-3",
                 title: "Field Deployment Checklist",
                 category: "MPA",
                 type: "link",
@@ -275,7 +274,7 @@
                 addedOn: "2023-11-02"
             },
             {
-                id: "4",
+                id: "default-4",
                 title: "Product Range Pitchdeck",
                 category: "operations",
                 type: "link",
@@ -298,47 +297,50 @@
             document.getElementById('roomInput').value = roomId;
             document.getElementById('collabRoomName').innerText = `Room: ${roomId}`;
 
-            // Initial download & setup recurring sync loops (polling for Google Docs style real-time update)
+            // Initial download & setup recurring sync loops
             syncLoop();
-            setInterval(syncLoop, 4000); // Poll for document modifications every 4 seconds
-            setInterval(updatePresence, 8000); // Pulse server connection heartbeat
+            setInterval(syncLoop, 3000); // Poll for new cards every 3 seconds
+            setInterval(updatePresence, 5000); // Pulse connection heartbeat every 5 seconds
         });
 
-        // Pull documents directly from global cloud storage
+        // Pull documents from shared database
         async function syncLoop() {
             try {
-                const res = await fetch(`${dbBaseUrl}/${roomId}/documents.json`);
-                if (!res.ok) throw new Error("HTTP connection failed");
-                
-                const data = await res.json();
-                if (data) {
-                    const loadedDocs = Object.keys(data).map(key => ({
-                        id: key,
-                        ...data[key]
-                    }));
+                const res = await fetch(`${dbBaseUrl}/${roomId}`);
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        // Room has no custom entries yet, let's load defaults
+                        documents = [...defaultDocuments];
+                        await saveToCloud(documents);
+                        renderDocuments();
+                        return;
+                    }
+                    throw new Error("HTTP connection failed");
+                }
 
+                const data = await res.json();
+                if (data && Array.isArray(data)) {
                     // Flash new items arriving from other collaborators in green
                     if (documents.length > 0) {
-                        loadedDocs.forEach(doc => {
+                        data.forEach(doc => {
                             if (!trackedCardIds.has(doc.id)) {
                                 doc.isNewFlash = true;
                             }
                         });
                     }
-                    documents = loadedDocs;
+                    documents = data;
                 } else {
-                    // Seed defaults if database room is completely empty
                     documents = [...defaultDocuments];
-                    await seedDefaultDb();
+                    await saveToCloud(documents);
                 }
                 renderDocuments();
                 updateConnectionBadge(true);
             } catch (err) {
                 console.warn("Retrying cloud link...", err);
                 updateConnectionBadge(false);
-                // Fail-safe: Local Storage if internet cuts out
+                // Fall-back to LocalStorage if internet cuts out
                 if (documents.length === 0) {
-                    const localDocs = localStorage.getItem('pueo_local_docs');
+                    const localDocs = localStorage.getItem(`pueo_local_${roomId}`);
                     if (localDocs) {
                         documents = JSON.parse(localDocs);
                         renderDocuments();
@@ -347,42 +349,44 @@
             }
         }
 
-        // Seeds default data back to cloud server if cleared
-        async function seedDefaultDb() {
-            const payload = {};
-            defaultDocuments.forEach(doc => {
-                payload[doc.id] = {
-                    title: doc.title,
-                    category: doc.category,
-                    type: doc.type,
-                    url: doc.url || "",
-                    desc: doc.desc,
-                    addedOn: doc.addedOn
-                };
-            });
-            await fetch(`${dbBaseUrl}/${roomId}/documents.json`, {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
-        }
-
         // Heartbeat system to dynamically count people viewing this room
         async function updatePresence() {
             try {
+                const presenceKey = `presence_${roomId}`;
                 const now = Date.now();
-                await fetch(`${dbBaseUrl}/${roomId}/presence/${myUserId}.json`, {
+                
+                // Fetch existing presence map
+                let presenceMap = {};
+                try {
+                    const res = await fetch(`${dbBaseUrl}/${presenceKey}`);
+                    if (res.ok) {
+                        presenceMap = await res.json();
+                    }
+                } catch (e) {}
+
+                // Add or update our entry
+                presenceMap[myUserId] = now;
+
+                // Clean up inactive members (older than 15 seconds)
+                const activeMap = {};
+                let activeCount = 0;
+                for (const userId in presenceMap) {
+                    if (now - presenceMap[userId] < 15000) {
+                        activeMap[userId] = presenceMap[userId];
+                        activeCount++;
+                    }
+                }
+
+                // Send active presence back to database
+                await fetch(`${dbBaseUrl}/${presenceKey}`, {
                     method: 'PUT',
-                    body: JSON.stringify(now)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(activeMap)
                 });
 
-                const res = await fetch(`${dbBaseUrl}/${roomId}/presence.json`);
-                const presenceData = await res.json();
-                if (presenceData) {
-                    const activeCount = Object.values(presenceData).filter(t => (now - t) < 25000).length;
-                    document.getElementById('collabActiveUsers').innerHTML = `
-                        <i class="fa-solid fa-users"></i> ${activeCount} Online Collaborator${activeCount !== 1 ? 's' : ''}
-                    `;
-                }
+                document.getElementById('collabActiveUsers').innerHTML = `
+                    <i class="fa-solid fa-users"></i> ${activeCount} Online Collaborator${activeCount !== 1 ? 's' : ''}
+                `;
             } catch (err) {}
         }
 
@@ -407,8 +411,9 @@
             const desc = document.getElementById('docDesc').value.trim();
             const addedOn = new Date().toISOString().split('T')[0];
             const type = document.querySelector('input[name="docType"]:checked').value;
+            const id = "doc_" + Date.now() + "_" + Math.random().toString(36).substring(2, 5);
 
-            const newDoc = { title, category, desc, addedOn, type };
+            const newDoc = { id, title, category, desc, addedOn, type };
 
             if (type === 'pdf') {
                 const fileInput = document.getElementById('docFile');
@@ -417,51 +422,49 @@
                     return;
                 }
                 const file = fileInput.files[0];
+                if (file.size > 3 * 1024 * 1024) {
+                    alert("PDF files should be less than 3MB for database stability.");
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = async function(event) {
                     newDoc.pdfData = event.target.result.split(',')[1];
-                    await submitToCloud(newDoc);
+                    documents.unshift(newDoc);
+                    await saveToCloud(documents);
+                    clearForm();
                 };
                 reader.readAsDataURL(file);
             } else {
                 newDoc.url = document.getElementById('docUrl').value.trim();
-                await submitToCloud(newDoc);
+                documents.unshift(newDoc);
+                await saveToCloud(documents);
+                clearForm();
             }
         }
 
-        async function submitToCloud(doc) {
+        async function saveToCloud(docsList) {
+            // Save to local storage cache
+            localStorage.setItem(`pueo_local_${roomId}`, JSON.stringify(docsList));
+            
             try {
-                const response = await fetch(`${dbBaseUrl}/${roomId}/documents.json`, {
-                    method: 'POST',
-                    body: JSON.stringify(doc)
+                const response = await fetch(`${dbBaseUrl}/${roomId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(docsList)
                 });
                 if (response.ok) {
-                    clearForm();
-                    await syncLoop(); // instant refresh
+                    renderDocuments();
                 }
             } catch (err) {
-                // Local fallback save
-                doc.id = "doc_" + Date.now();
-                documents.unshift(doc);
-                localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
+                console.error("Cloud push failed, saved in local cache", err);
                 renderDocuments();
-                clearForm();
-                alert("Saved locally! Changes will push to other computers once connection returns.");
             }
         }
 
         async function deleteDocument(id) {
-            if (confirm('Are you sure you want to remove this document? This deletes it globally for all visitors.')) {
-                try {
-                    await fetch(`${dbBaseUrl}/${roomId}/documents/${id}.json`, {
-                        method: 'DELETE'
-                    });
-                    await syncLoop();
-                } catch (err) {
-                    documents = documents.filter(doc => doc.id !== id);
-                    localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
-                    renderDocuments();
-                }
+            if (confirm('Are you sure you want to remove this document? This will delete it for everyone in this room.')) {
+                documents = documents.filter(doc => doc.id !== id);
+                await saveToCloud(documents);
             }
         }
 
@@ -483,7 +486,7 @@
                 link.click();
                 URL.revokeObjectURL(downloadUrl);
             } else {
-                alert("Error loading download binary.");
+                alert("Error loading PDF document binary.");
             }
         }
 
@@ -592,7 +595,7 @@
 
         function copyCollabLink() {
             navigator.clipboard.writeText(window.location.href);
-            alert("Share Link Copied! Send this link to anyone to immediately view and edit the same document index!");
+            alert("Share Link Copied! Send this link to anyone to immediately view, upload and delete documents in this room!");
         }
 
         function toggleInputFields() {
@@ -622,8 +625,8 @@
 
         async function resetToDefault() {
             if (confirm('Are you sure you want to restore default sample files? This will clear other customized links for everyone in this room.')) {
-                await seedDefaultDb();
-                await syncLoop();
+                documents = [...defaultDocuments];
+                await saveToCloud(documents);
             }
         }
     </script>
