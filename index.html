@@ -53,38 +53,62 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- ADMIN PANEL (Plug and Play controls) -->
-        <section id="adminPanel" class="hidden bg-white border border-sky-100 rounded-2xl shadow-lg p-6 mb-8 transition-all">
+        <section id="adminPanel" class="hidden bg-white border border-sky-100 rounded-2xl shadow-lg p-6 mb-8 transition-all animate-fadeIn">
             <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
                 <h2 class="text-lg font-bold text-pueo-900 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-plus text-sky-600"></i> Plug & Play: Add New Document Link
+                    <i class="fa-solid fa-circle-plus text-sky-600"></i> Plug & Play: Add Document/PDF
                 </h2>
                 <button onclick="toggleAdminPanel()" class="text-slate-400 hover:text-slate-600">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            
+
             <form id="docForm" onsubmit="addDocument(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-100 mb-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Document Delivery Method</label>
+                    <div class="flex gap-6">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="docType" value="link" checked onchange="toggleInputFields()" class="text-pueo-600 focus:ring-pueo-500 h-4 w-4">
+                            <span class="ml-2 text-sm text-slate-700 font-medium">External Hyperlink</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="docType" value="pdf" onchange="toggleInputFields()" class="text-pueo-600 focus:ring-pueo-500 h-4 w-4">
+                            <span class="ml-2 text-sm text-slate-700 font-medium">Direct PDF Upload (Downloadable)</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Document Title</label>
-                    <input type="text" id="docTitle" required placeholder="e.g., Q3 Network Topology Diagram" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    <input type="text" id="docTitle" required placeholder="e.g., Q3 Network Status" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Hyperlink / URL</label>
-                    <input type="url" id="docUrl" required placeholder="https://example.com/your-doc-link" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                </div>
+
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Category</label>
-                    <select id="docCategory" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                        <option value="Technical">Technical Specs</option>
-                        <option value="Operations">Operations & Guides</option>
-                        <option value="Legal">Legal & Contracts</option>
-                        <option value="Marketing">Marketing & Sales</option>
+                    <select id="docCategory" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+                        <option value="In processing">In processing</option>
+                        <option value="MPA">MPA</option>
+                        <option value="LES">LES</option>
+                        <option value="operations">operations</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Short Description</label>
-                    <input type="text" id="docDesc" placeholder="Brief details about this document..." class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+
+                <!-- Toggleable Source Input -->
+                <div id="urlInputContainer" class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Hyperlink / URL</label>
+                    <input type="url" id="docUrl" placeholder="https://example.com/your-doc-link" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
                 </div>
+
+                <div id="pdfInputContainer" class="md:col-span-2 hidden">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Upload PDF File (Saved Securely in Browser DB)</label>
+                    <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Short Description</label>
+                    <input type="text" id="docDesc" placeholder="Brief details about this document..." class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+                </div>
+
                 <div class="md:col-span-2 flex justify-end gap-3 mt-2">
                     <button type="button" onclick="clearForm()" class="px-4 py-2 border border-slate-200 text-slate-500 rounded-lg hover:bg-slate-50 transition text-sm font-medium">Clear Form</button>
                     <button type="submit" class="px-5 py-2 bg-pueo-700 hover:bg-pueo-800 text-white rounded-lg transition text-sm font-semibold shadow-sm">Plug In Document</button>
@@ -95,10 +119,10 @@
                 <span class="text-xs text-slate-500">Advanced Portability:</span>
                 <div class="flex gap-2">
                     <button onclick="exportJSON()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded flex items-center gap-1 transition">
-                        <i class="fa-solid fa-file-export"></i> Export JSON
+                        <i class="fa-solid fa-file-export"></i> Export JSON Data
                     </button>
                     <button onclick="triggerImport()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded flex items-center gap-1 transition">
-                        <i class="fa-solid fa-file-import"></i> Import JSON
+                        <i class="fa-solid fa-file-import"></i> Import JSON Data
                     </button>
                     <input type="file" id="importFile" class="hidden" accept=".json" onchange="importJSON(event)">
                     <button onclick="resetToDefault()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded flex items-center gap-1 transition">
@@ -109,28 +133,28 @@
         </section>
 
         <!-- Search and Categorization Filters -->
-        <section class="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <section class="mb-8 flex flex-col lg:flex-row justify-between items-center gap-4">
             <!-- Dynamic Category Filter Pills -->
-            <div class="flex flex-wrap gap-2 w-full md:w-auto" id="filterContainer">
-                <button onclick="filterCategory('All')" id="btn-All" class="filter-btn active bg-pueo-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm">
+            <div class="flex flex-wrap gap-2 w-full lg:w-auto overflow-x-auto pb-1" id="filterContainer">
+                <button onclick="filterCategory('All')" id="btn-All" class="filter-btn active bg-pueo-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0">
                     All Documents
                 </button>
-                <button onclick="filterCategory('Technical')" id="btn-Technical" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all">
-                    Technical Specs
+                <button onclick="filterCategory('In processing')" id="btn-In-processing" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
+                    In processing
                 </button>
-                <button onclick="filterCategory('Operations')" id="btn-Operations" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all">
-                    Operations
+                <button onclick="filterCategory('MPA')" id="btn-MPA" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
+                    MPA
                 </button>
-                <button onclick="filterCategory('Legal')" id="btn-Legal" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all">
-                    Legal & Contracts
+                <button onclick="filterCategory('LES')" id="btn-LES" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
+                    LES
                 </button>
-                <button onclick="filterCategory('Marketing')" id="btn-Marketing" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all">
-                    Marketing
+                <button onclick="filterCategory('operations')" id="btn-operations" class="filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
+                    operations
                 </button>
             </div>
 
             <!-- Search Bar -->
-            <div class="relative w-full md:w-80">
+            <div class="relative w-full lg:w-80">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </span>
@@ -143,12 +167,12 @@
             <div id="documentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Javascript will render cards here -->
             </div>
-            
+
             <!-- Empty State -->
             <div id="emptyState" class="hidden text-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl">
                 <i class="fa-regular fa-folder-open text-5xl text-slate-300 mb-3"></i>
                 <h3 class="text-lg font-bold text-slate-600">No documents found</h3>
-                <p class="text-slate-400 text-sm mt-1">Try adjusted searches, filters, or add a new document above.</p>
+                <p class="text-slate-400 text-sm mt-1">Try adjusting searches, filters, or add a new document above.</p>
             </div>
         </section>
 
@@ -168,12 +192,18 @@
 
     <!-- App JavaScript Logic -->
     <script>
-        // Default documents to populate portal on first run
+        // IndexedDB for large PDF persistence
+        let db;
+        const DB_NAME = "PUEOWirelessDB";
+        const STORE_NAME = "pdfs";
+
+        // Default documents configuration matching new categories
         const defaultDocuments = [
             {
                 id: "1",
                 title: "Network Architecture Blueprint",
-                category: "Technical",
+                category: "In processing",
+                type: "link",
                 url: "https://example.com/network-blueprint",
                 desc: "High-level diagram outlining the PUEO Wireless suburban node layout and fiber backhaul routing.",
                 addedOn: "2023-10-15"
@@ -181,7 +211,8 @@
             {
                 id: "2",
                 title: "Standard SLA Agreement",
-                category: "Legal",
+                category: "LES",
+                type: "link",
                 url: "https://example.com/sla-agreement",
                 desc: "Enterprise Client Service Level Agreement (SLA) covering latency limits and uptime guarantees.",
                 addedOn: "2023-09-12"
@@ -189,7 +220,8 @@
             {
                 id: "3",
                 title: "Field Deployment Checklist",
-                category: "Operations",
+                category: "MPA",
+                type: "link",
                 url: "https://example.com/deployment-checklist",
                 desc: "Step-by-step procedures for field technicians installing PUEO receiver dishes.",
                 addedOn: "2023-11-02"
@@ -197,7 +229,8 @@
             {
                 id: "4",
                 title: "Product Range Pitchdeck",
-                category: "Marketing",
+                category: "operations",
+                type: "link",
                 url: "https://example.com/marketing-pitch",
                 desc: "Client-facing slide presentation showcasing our localized wireless bandwidth packages.",
                 addedOn: "2023-11-20"
@@ -210,9 +243,53 @@
         // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
+            initDatabase();
+        });
+
+        // Initialize IndexedDB
+        function initDatabase() {
+            const request = indexedDB.open(DB_NAME, 1);
             
-            // Check for locally saved data
-            const savedDocs = localStorage.getItem('pueo_documents');
+            request.onerror = function(event) {
+                console.error("IndexedDB initialization error:", event);
+                loadDocumentsFromStorage();
+            };
+            
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                loadDocumentsFromStorage();
+            };
+            
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: "id" });
+                }
+            };
+        }
+
+        // Toggle source forms between Web Link and Local PDF
+        function toggleInputFields() {
+            const type = document.querySelector('input[name="docType"]:checked').value;
+            const urlContainer = document.getElementById('urlInputContainer');
+            const pdfContainer = document.getElementById('pdfInputContainer');
+            
+            if (type === 'link') {
+                urlContainer.classList.remove('hidden');
+                pdfContainer.classList.add('hidden');
+                document.getElementById('docUrl').required = true;
+                document.getElementById('docFile').required = false;
+            } else {
+                urlContainer.classList.add('hidden');
+                pdfContainer.classList.remove('hidden');
+                document.getElementById('docUrl').required = false;
+                document.getElementById('docFile').required = true;
+            }
+        }
+
+        // Load files metadata from localStorage and match DB files
+        function loadDocumentsFromStorage() {
+            const savedDocs = localStorage.getItem('pueo_documents_v2');
             if (savedDocs) {
                 documents = JSON.parse(savedDocs);
             } else {
@@ -220,7 +297,7 @@
                 saveToLocalStorage();
             }
             renderDocuments();
-        });
+        }
 
         // Toggle Admin section
         function toggleAdminPanel() {
@@ -228,9 +305,9 @@
             panel.classList.toggle('hidden');
         }
 
-        // Save data helper
+        // Save data helper (only contains document metadata; binary data goes to IndexedDB)
         function saveToLocalStorage() {
-            localStorage.setItem('pueo_documents', JSON.stringify(documents));
+            localStorage.setItem('pueo_documents_v2', JSON.stringify(documents));
         }
 
         // Render Cards dynamically based on active filter and search terms
@@ -259,7 +336,16 @@
                 const categoryColors = getCategoryColors(doc.category);
                 const card = document.createElement('div');
                 card.className = "bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group";
-                
+
+                const isPdf = doc.type === 'pdf';
+                const actionButton = isPdf 
+                    ? `<button onclick="downloadPdf('${doc.id}', '${doc.title}')" class="bg-white hover:bg-red-600 text-red-600 hover:text-white border border-red-100 hover:border-red-600 px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">
+                         Download PDF <i class="fa-solid fa-file-pdf"></i>
+                       </button>`
+                    : `<a href="${doc.url}" target="_blank" rel="noopener noreferrer" class="bg-white hover:bg-pueo-600 text-pueo-700 hover:text-white border border-pueo-100 hover:border-pueo-600 px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">
+                         Open Doc <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                       </a>`;
+
                 card.innerHTML = `
                     <div class="p-5">
                         <div class="flex justify-between items-start gap-2 mb-3">
@@ -270,19 +356,18 @@
                                 <i class="fa-solid fa-trash-can text-sm"></i>
                             </button>
                         </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-1.5 line-clamp-1 group-hover:text-pueo-700 transition">
+                        <h3 class="font-bold text-slate-800 text-base mb-1.5 line-clamp-1 group-hover:text-pueo-700 transition flex items-center gap-1.5">
+                            ${isPdf ? '<i class="fa-solid fa-file-pdf text-red-500"></i>' : '<i class="fa-solid fa-link text-sky-500"></i>'}
                             ${doc.title}
                         </h3>
                         <p class="text-xs text-slate-500 line-clamp-2 min-h-[2.5rem]">
                             ${doc.desc || 'No description provided.'}
                         </p>
                     </div>
-                    
+
                     <div class="bg-slate-50 px-5 py-3.5 border-t border-slate-100 flex justify-between items-center text-xs">
                         <span class="text-slate-400 font-medium">Added: ${doc.addedOn}</span>
-                        <a href="${doc.url}" target="_blank" rel="noopener noreferrer" class="bg-white hover:bg-pueo-600 text-pueo-700 hover:text-white border border-pueo-100 hover:border-pueo-600 px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">
-                            Open Doc <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </a>
+                        ${actionButton}
                     </div>
                 `;
                 grid.appendChild(card);
@@ -292,41 +377,114 @@
         // Get matching CSS colors for categories
         function getCategoryColors(category) {
             switch(category) {
-                case 'Technical': return { badge: 'bg-indigo-50 text-indigo-700 border border-indigo-100' };
-                case 'Operations': return { badge: 'bg-emerald-50 text-emerald-700 border border-emerald-100' };
-                case 'Legal': return { badge: 'bg-amber-50 text-amber-700 border border-amber-100' };
-                case 'Marketing': return { badge: 'bg-rose-50 text-rose-700 border border-rose-100' };
+                case 'In processing': return { badge: 'bg-indigo-50 text-indigo-700 border border-indigo-100' };
+                case 'MPA': return { badge: 'bg-emerald-50 text-emerald-700 border border-emerald-100' };
+                case 'LES': return { badge: 'bg-amber-50 text-amber-700 border border-amber-100' };
+                case 'operations': return { badge: 'bg-rose-50 text-rose-700 border border-rose-100' };
                 default: return { badge: 'bg-slate-100 text-slate-700' };
             }
         }
 
-        // Add Document via form
+        // Handle addition of standard hyperlink or direct PDF uploads
         function addDocument(e) {
             e.preventDefault();
             const id = Date.now().toString();
             const title = document.getElementById('docTitle').value.trim();
-            const url = document.getElementById('docUrl').value.trim();
             const category = document.getElementById('docCategory').value;
             const desc = document.getElementById('docDesc').value.trim();
             const addedOn = new Date().toISOString().split('T')[0];
+            const type = document.querySelector('input[name="docType"]:checked').value;
 
-            documents.unshift({ id, title, category, url, desc, addedOn });
-            saveToLocalStorage();
-            renderDocuments();
-            clearForm();
+            if (type === 'pdf') {
+                const fileInput = document.getElementById('docFile');
+                if (fileInput.files.length === 0) {
+                    alert("Please select a PDF file!");
+                    return;
+                }
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const arrayBuffer = event.target.result;
+                    // Store file in IndexedDB
+                    savePdfToDB(id, arrayBuffer, file.name, function() {
+                        documents.unshift({ id, title, category, type: 'pdf', desc, addedOn });
+                        saveToLocalStorage();
+                        renderDocuments();
+                        clearForm();
+                        alert('PDF uploaded and saved locally!');
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                const url = document.getElementById('docUrl').value.trim();
+                documents.unshift({ id, title, category, type: 'link', url, desc, addedOn });
+                saveToLocalStorage();
+                renderDocuments();
+                clearForm();
+                alert('Document link successfully created!');
+            }
+        }
+
+        // Save binary file into IndexedDB
+        function savePdfToDB(id, arrayBuffer, fileName, callback) {
+            if (!db) {
+                alert("Database connection is not ready. Try again.");
+                return;
+            }
+            const transaction = db.transaction([STORE_NAME], "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const data = { id: id, data: arrayBuffer, name: fileName };
+            const request = store.put(data);
             
-            // Auto close/scroll or give confirmation
-            alert('Document added successfully!');
+            request.onsuccess = function() {
+                callback();
+            };
+            request.onerror = function(event) {
+                console.error("IndexedDB store error:", event);
+            };
+        }
+
+        // Retrieve and trigger immediate download of binary PDF file
+        function downloadPdf(id, title) {
+            if (!db) {
+                alert("Local storage database not connected.");
+                return;
+            }
+            const transaction = db.transaction([STORE_NAME], "readonly");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(id);
+
+            request.onsuccess = function(event) {
+                const record = event.target.result;
+                if (record && record.data) {
+                    const blob = new Blob([record.data], { type: 'application/pdf' });
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = record.name || `${title}.pdf`;
+                    link.click();
+                    URL.revokeObjectURL(downloadUrl);
+                } else {
+                    alert("PDF data could not be located in browser storage.");
+                }
+            };
         }
 
         // Clear Form fields
         function clearForm() {
             document.getElementById('docForm').reset();
+            toggleInputFields();
         }
 
-        // Delete document link
+        // Delete document link and IndexedDB entry
         function deleteDocument(id) {
-            if (confirm('Are you sure you want to remove this document link?')) {
+            if (confirm('Are you sure you want to remove this document?')) {
+                const target = documents.find(doc => doc.id === id);
+                if (target && target.type === 'pdf' && db) {
+                    const transaction = db.transaction([STORE_NAME], "readwrite");
+                    const store = transaction.objectStore(STORE_NAME);
+                    store.delete(id);
+                }
                 documents = documents.filter(doc => doc.id !== id);
                 saveToLocalStorage();
                 renderDocuments();
@@ -336,15 +494,16 @@
         // Filter Category actions
         function filterCategory(category) {
             currentFilter = category;
-            
-            // Toggle active pill button styles
+
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = "filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all";
+                btn.className = "filter-btn bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0";
             });
 
-            const activeBtn = document.getElementById(`btn-${category}`);
+            // Handle spacing in category element IDs
+            const sanitizedId = category.replace(/\s+/g, '-');
+            const activeBtn = document.getElementById(`btn-${sanitizedId}`);
             if (activeBtn) {
-                activeBtn.className = "filter-btn active bg-pueo-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm";
+                activeBtn.className = "filter-btn active bg-pueo-700 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0";
             }
 
             renderDocuments();
@@ -355,7 +514,7 @@
             renderDocuments();
         }
 
-        // Export data feature
+        // Export data feature (metadata backup)
         function exportJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
             const dlAnchorElem = document.createElement('a');
@@ -369,7 +528,7 @@
             document.getElementById('importFile').click();
         }
 
-        // Import data feature
+        // Import data feature (metadata backup)
         function importJSON(event) {
             const fileReader = new FileReader();
             fileReader.onload = function(fileLoadedEvent) {
@@ -379,7 +538,7 @@
                         documents = parsedData;
                         saveToLocalStorage();
                         renderDocuments();
-                        alert('Portal data imported successfully!');
+                        alert('Portal database structured imported successfully!');
                     } else {
                         alert('Invalid data format. Expected an array of documents.');
                     }
@@ -393,6 +552,11 @@
         // Reset to Defaults
         function resetToDefault() {
             if (confirm('This will wipe all custom entries and restore defaults. Continue?')) {
+                if (db) {
+                    const transaction = db.transaction([STORE_NAME], "readwrite");
+                    const store = transaction.objectStore(STORE_NAME);
+                    store.clear();
+                }
                 documents = [...defaultDocuments];
                 saveToLocalStorage();
                 renderDocuments();
