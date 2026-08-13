@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StepBrief - Centralized Flight Operations & Mission Planning Hub</title>
+    <title>PUEO Wireless - Centralized Document & How-to Hub</title>
     <!-- Tailwind CSS for modern responsive layout -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for flight/tactical icons -->
+    <!-- FontAwesome for networking/document icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
@@ -30,7 +30,7 @@
     </script>
 
     <style>
-        /* Custom flight deck scrollbar styling for instructions */
+        /* Custom scrollbar styling for instructions box */
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
         }
@@ -55,27 +55,27 @@
 </head>
 <body class="bg-neutral-100 text-neutral-800 min-h-screen flex flex-col font-sans">
 
-    <!-- Header / Flight Deck Banner -->
+    <!-- Header / Branding Banner -->
     <header class="bg-pueo-black text-white shadow-md border-b-4 border-pueo-yellow">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <div class="bg-pueo-red p-2.5 rounded-lg shadow-md border border-pueo-yellow">
-                    <i class="fa-solid fa-jet-fighter text-2xl text-pueo-yellow"></i>
+                    <i class="fa-solid fa-tower-cell text-2xl text-pueo-yellow"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-wider uppercase text-pueo-yellow">StepBrief</h1>
-                    <p class="text-xs text-neutral-300 font-semibold tracking-wider">Centralized Document & How to</p>
+                    <h1 class="text-2xl font-black tracking-wider uppercase text-pueo-yellow">PUEO Wireless</h1>
+                    <p class="text-xs text-neutral-300 font-semibold tracking-wider font-mono">Centralized Document & How to</p>
                 </div>
             </div>
 
-            <!-- Cloud Sync and Form Toggle Buttons -->
+            <!-- Cloud Sync Badge and Form Toggle -->
             <div class="flex items-center gap-4 w-full sm:w-auto justify-end">
                 <div id="syncBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-neutral-800 text-pueo-yellow border border-neutral-700">
                     <i class="fa-solid fa-circle-nodes animate-pulse text-emerald-500"></i>
                     <span>Connecting to Database...</span>
                 </div>
                 <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Submit Briefing Link / PDF
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Submit Document / Link
                 </button>
             </div>
         </div>
@@ -88,7 +88,7 @@
         <section id="submitPanel" class="hidden bg-white border-2 border-pueo-yellow rounded-2xl shadow-lg p-6 mb-8 transition-all-300">
             <div class="flex justify-between items-center mb-4 pb-2 border-b border-neutral-100">
                 <h2 id="formTitleText" class="text-lg font-bold text-pueo-black flex items-center gap-2">
-                    <i class="fa-solid fa-plane-arrival text-pueo-red"></i> Upload Mission Asset to Flight Board
+                    <i class="fa-solid fa-file-circle-plus text-pueo-red"></i> Upload Asset to Document Board
                 </h2>
                 <button onclick="clearForm(); toggleSubmitPanel();" class="text-neutral-400 hover:text-neutral-600">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -112,39 +112,39 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Briefing Resource Name</label>
-                    <input type="text" id="docTitle" required placeholder="e.g., C-17 TOLD Calculator, Local NOTAMs" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Document / Resource Name</label>
+                    <input type="text" id="docTitle" required placeholder="e.g., MPA Worksheet, SIM Registration Guide" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Briefing Phase Tab</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Category Tab</label>
                     <select id="docCategory" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm">
-                        <option value="Preflight">Preflight</option>
-                        <option value="Postflight">Postflight</option>
-                        <option value="Pubs & MDS">Pubs & MDS</option>
-                        <option value="Operations">Operations</option>
+                        <option value="In processing">In processing</option>
+                        <option value="MPA">MPA</option>
+                        <option value="LES">LES</option>
+                        <option value="operations">operations</option>
                     </select>
                 </div>
 
                 <!-- Input Switching Elements -->
                 <div id="urlInputContainer" class="md:col-span-2">
                     <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Hyperlink / URL Address</label>
-                    <input type="url" id="docUrl" placeholder="https://skyvector.com or https://military-planner.mil" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm">
+                    <input type="url" id="docUrl" placeholder="https://drive.google.com/... or https://pueowireless.com" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm">
                 </div>
 
                 <div id="pdfInputContainer" class="md:col-span-2 hidden">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload Flight / Chart PDF (Max 2.0MB)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF Worksheet (Max 2.0MB)</label>
                     <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200">
                     <p class="text-xs text-neutral-500 mt-2 font-medium">
-                        <i class="fa-solid fa-triangle-exclamation text-pueo-red mr-1"></i> For large flight manuals, flight guides, or global FLIP publications, please host on a shared squadron network (OneDrive, Google Drive) and submit as an <strong>External Hyperlink</strong>.
+                        <i class="fa-solid fa-triangle-exclamation text-pueo-red mr-1"></i> For exceptionally large manuals or multi-hundred page documents, please host on an external drive (Google Drive, OneDrive) and submit as an <strong>External Hyperlink</strong>.
                     </p>
                     <p id="pdfHelpText" class="text-xs text-neutral-400 mt-1 hidden">*Keep empty to retain the previously uploaded PDF if editing.</p>
                 </div>
 
-                <!-- Advanced Detailed Instructions (TOLD, Weather steps, Runway data) -->
+                <!-- Advanced Detailed Instructions -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">How-to-Use Briefing Guidelines & Steps</label>
-                    <textarea id="docDesc" rows="6" placeholder="Provide step-by-step instructions or checklist guidelines on how to run, fill out, or review this specific flight asset..." class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm font-normal leading-relaxed"></textarea>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">How-to-Use Advanced Instructions</label>
+                    <textarea id="docDesc" rows="6" placeholder="Provide step-by-step instructions or checklists on how to fill out, process, or submit this specific document..." class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm font-normal leading-relaxed"></textarea>
                 </div>
 
                 <div class="md:col-span-2 flex justify-end gap-3 mt-2">
@@ -154,47 +154,47 @@
             </form>
         </section>
 
-        <!-- Search and Phase Tabs Navigation -->
+        <!-- Search and Navigation Tabs -->
         <section class="mb-8 flex flex-col lg:flex-row justify-between items-center gap-4">
-            <!-- Dynamic Navigation Tabs aligned with stepbrief.net -->
+            <!-- Dynamic Navigation Tabs aligned with PUEO Wireless -->
             <div class="flex flex-wrap gap-2 w-full lg:w-auto overflow-x-auto pb-1" id="filterContainer">
                 <button onclick="filterCategory('All')" id="btn-All" class="filter-btn active bg-pueo-black text-pueo-yellow border-2 border-pueo-yellow px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0">
                     All Materials
                 </button>
-                <button onclick="filterCategory('Preflight')" id="btn-Preflight" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
-                    Preflight
+                <button onclick="filterCategory('In processing')" id="btn-In-processing" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
+                    In processing
                 </button>
-                <button onclick="filterCategory('Postflight')" id="btn-Postflight" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
-                    Postflight
+                <button onclick="filterCategory('MPA')" id="btn-MPA" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
+                    MPA
                 </button>
-                <button onclick="filterCategory('Pubs & MDS')" id="btn-Pubs-&-MDS" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
-                    Pubs & MDS
+                <button onclick="filterCategory('LES')" id="btn-LES" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
+                    LES
                 </button>
-                <button onclick="filterCategory('Operations')" id="btn-Operations" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
-                    Operations
+                <button onclick="filterCategory('operations')" id="btn-operations" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
+                    operations
                 </button>
             </div>
 
-            <!-- Flight Brief Search bar -->
+            <!-- Document Search bar -->
             <div class="relative w-full lg:w-80">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-400">
-                    <i class="fa-solid fa-plane-departure"></i>
+                    <i class="fa-solid fa-magnifying-glass"></i>
                 </span>
-                <input type="text" id="searchInput" oninput="searchDocuments()" placeholder="Search flight briefs & resources..." class="w-full pl-9 pr-4 py-2.5 border border-neutral-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pueo-red bg-white text-sm shadow-inner">
+                <input type="text" id="searchInput" oninput="searchDocuments()" placeholder="Search documents & resources..." class="w-full pl-9 pr-4 py-2.5 border border-neutral-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pueo-red bg-white text-sm shadow-inner">
             </div>
         </section>
 
-        <!-- Briefing Grid -->
+        <!-- Document Grid -->
         <section>
             <div id="documentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Javascript populates cards here -->
             </div>
 
-            <!-- Empty State Flight Briefing -->
+            <!-- Empty State Display -->
             <div id="emptyState" class="hidden text-center py-16 bg-white border border-dashed border-neutral-300 rounded-2xl">
-                <i class="fa-solid fa-radar text-5xl text-neutral-300 mb-3 animate-pulse"></i>
-                <h3 class="text-lg font-bold text-neutral-600">Flight Deck is Empty</h3>
-                <p class="text-neutral-400 text-sm mt-1">Submit your first flight brief, weather link, or MDS procedure to begin planning.</p>
+                <i class="fa-solid fa-folder-open text-5xl text-neutral-300 mb-3 animate-pulse"></i>
+                <h3 class="text-lg font-bold text-neutral-600">Document Board is Empty</h3>
+                <p class="text-neutral-400 text-sm mt-1">Submit your first document link, checklist, or PDF worksheet to begin planning.</p>
             </div>
         </section>
 
@@ -203,9 +203,9 @@
     <!-- Dashboard Footer -->
     <footer class="bg-pueo-black text-neutral-400 py-8 border-t-4 border-pueo-red text-xs mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>&copy; <span id="currentYear"></span> StepBrief Central. Derived for Tactical Squadron Operations.</p>
+            <p>&copy; <span id="currentYear"></span> PUEO Wireless Centralized Portal. All Rights Reserved.</p>
             <div class="flex gap-4">
-                <span class="text-neutral-500 font-semibold tracking-wider uppercase"><i class="fa-solid fa-shield-halved mr-1"></i> Operational Flight Plan Tool</span>
+                <span class="text-neutral-500 font-semibold tracking-wider uppercase"><i class="fa-solid fa-shield-halved mr-1"></i> Operations Document Hub</span>
             </div>
         </div>
     </footer>
@@ -213,10 +213,11 @@
     <!-- Flight Portal Application Scripts -->
     <script>
         // =========================================================================
-        // LIVE HIGH-CAPACITY CLOUD STORAGE ENDPOINT (Firebase Realtime DB REST API)
-        // Set to a custom, dedicated database path for StepBrief resources.
+        // ZERO-SETUP PUBLIC DATASOURCE (Pantry Cloud API)
         // =========================================================================
-        const dbUrl = "https://pueo-wireless-portal-default-rtdb.firebaseio.com/stepbrief.json";
+        const pantryId = "703901b0-c04e-4f57-89e4-b816a7f050b1";
+        const basketName = "pueo_wireless_v2";
+        const dbUrl = "https://getpantry.cloud/apiv1/pantry/" + pantryId + "/basket/" + basketName;
 
         let currentFilter = 'All';
         let documents = [];
@@ -226,47 +227,54 @@
             document.getElementById('currentYear').innerText = new Date().getFullYear();
             loadSharedDatabase();
 
-            // Check for team updates automatically every 4 seconds
-            setInterval(loadSharedDatabase, 4000);
+            // Check for updates automatically every 6 seconds to optimize speed
+            setInterval(loadSharedDatabase, 6000);
         });
 
-        // Set state for real-time tactical badge
+        // Set state for real-time connection badge
         function setBadgeState(connected, message) {
             const badge = document.getElementById('syncBadge');
             if (connected) {
                 badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-neutral-800 text-emerald-400 border border-neutral-700";
-                badge.innerHTML = `<i class="fa-solid fa-circle animate-pulse text-emerald-500"></i> <span>${message || 'Synced'}</span>`;
+                badge.innerHTML = '<i class="fa-solid fa-circle animate-pulse text-emerald-500"></i> <span>' + (message || 'Synced') + '</span>';
             } else {
                 badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-neutral-800 text-pueo-red border border-neutral-700 animate-pulse";
-                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-pueo-red animate-bounce"></i> <span>${message || 'Syncing...'}</span>`;
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-pueo-red animate-bounce"></i> <span>' + (message || 'Syncing...') + '</span>';
             }
         }
 
-        // Fetch flight documents from the live shared database
+        // Fetch documents from the live shared database
         async function loadSharedDatabase() {
             try {
                 const res = await fetch(dbUrl, {
                     method: 'GET',
-                    headers: { 'Accept': 'application/json' }
+                    headers: { 'Content-Type': 'application/json' }
                 });
-                if (!res.ok) throw new Error("Cloud fetch failed");
+                
+                // If basket does not exist yet (clean slate), start empty
+                if (res.status === 400 || res.status === 404) {
+                    documents = [];
+                    setBadgeState(true, 'Live Cloud Sync Active (Empty Board)');
+                    renderDocuments();
+                    return;
+                }
+
+                if (!res.ok) throw new Error("Cloud fetch failed with status " + res.status);
 
                 const data = await res.json();
-                if (data && Array.isArray(data)) {
-                    documents = data;
-                } else if (data && typeof data === 'object') {
-                    documents = Object.values(data);
+                if (data && data.documents && Array.isArray(data.documents)) {
+                    documents = data.documents;
                 } else {
                     documents = [];
                 }
-                setBadgeState(true, 'Live Flight Sync Active');
+                setBadgeState(true, 'Live Cloud Sync Active');
                 renderDocuments();
             } catch (err) {
                 console.warn("Retrying cloud sync...", err);
-                setBadgeState(false, 'Connecting Flight Line...');
+                setBadgeState(false, 'Connecting Network...');
 
                 // Offline memory fallback
-                const localDocs = localStorage.getItem('stepbrief_local_docs');
+                const localDocs = localStorage.getItem('pueo_local_docs');
                 if (localDocs) {
                     documents = JSON.parse(localDocs);
                 }
@@ -294,7 +302,7 @@
                     type 
                 };
             } else {
-                const id = "brief_" + Date.now() + "_" + Math.random().toString(36).substring(2, 5);
+                const id = "doc_" + Date.now() + "_" + Math.random().toString(36).substring(2, 5);
                 const addedOn = new Date().toISOString().split('T')[0];
                 targetDoc = { id, title, category, desc, addedOn, type };
             }
@@ -313,7 +321,7 @@
                 } else {
                     const file = fileInput.files[0];
                     if (file.size > 2048 * 1024) { // Max 2.0MB
-                        alert("PDF document is too large! Please choose a checklist under 2.0MB, or link via OneDrive/Google Drive.");
+                        alert("PDF document is too large! Please choose a file under 2.0MB, or link via Google Drive/OneDrive.");
                         return;
                     }
                     const reader = new FileReader();
@@ -377,36 +385,38 @@
 
             toggleInputFields();
 
-            document.getElementById('formTitleText').innerHTML = `<i class="fa-solid fa-pen-to-square text-pueo-yellow"></i> Modifying Brief: ${doc.title}`;
-            document.getElementById('formSubmitBtn').innerText = "Update Brief";
+            document.getElementById('formTitleText').innerHTML = '<i class="fa-solid fa-pen-to-square text-pueo-yellow"></i> Modifying Document: ' + doc.title;
+            document.getElementById('formSubmitBtn').innerText = "Update Document";
         }
 
         // Commit updated document values directly to the cloud
         async function saveToDatabase(docsList) {
-            localStorage.setItem('stepbrief_local_docs', JSON.stringify(docsList));
+            localStorage.setItem('pueo_local_docs', JSON.stringify(docsList));
             renderDocuments();
-            setBadgeState(false, 'Updating Server...');
+            setBadgeState(false, 'Updating Cloud...');
 
-            const payload = JSON.stringify(docsList);
+            // Pantry requires wrapping arrays inside an object
+            const payload = JSON.stringify({ documents: docsList });
 
             try {
+                // POST creates or completely replaces the contents of the basket
                 const response = await fetch(dbUrl, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                     },
                     body: payload
                 });
                 if (!response.ok) throw new Error("Update rejected by server");
-                setBadgeState(true, 'Briefs Updated');
+                setBadgeState(true, 'Documents Updated');
             } catch (err) {
-                console.error("Flight update failed.", err);
+                console.error("Update failed.", err);
                 setBadgeState(false, 'Offline Sandbox Mode');
             }
         }
 
         async function deleteDocument(id) {
-            if (confirm('Permanently remove this resource from the shared flight line? This will delete it for everyone.')) {
+            if (confirm('Permanently remove this resource? This will delete it for everyone.')) {
                 documents = documents.filter(doc => doc.id !== id);
                 if (editingId === id) {
                     clearForm();
@@ -431,14 +441,14 @@
 
                     const link = document.createElement('a');
                     link.href = downloadUrl;
-                    link.download = `${title}.pdf`;
+                    link.download = title + ".pdf";
                     link.click();
                     URL.revokeObjectURL(downloadUrl);
                 } catch(e) {
-                    alert("Unable to compile chart PDF. Please try re-uploading the file.");
+                    alert("Unable to compile PDF file. Please try re-uploading the document.");
                 }
             } else {
-                alert("No PDF document belongs to this flight briefing card.");
+                alert("No PDF document belongs to this card.");
             }
         }
 
@@ -471,12 +481,8 @@
 
                 const isPdf = doc.type === 'pdf';
                 const actionButton = isPdf 
-                    ? `<button onclick="downloadPdf('${doc.id}', '${doc.title}')" class="bg-white hover:bg-pueo-red text-pueo-red hover:text-white border border-neutral-200 hover:border-pueo-red px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">
-                         Download Checklist <i class="fa-solid fa-file-pdf text-xs"></i>
-                       </button>`
-                    : `<a href="${doc.url}" target="_blank" rel="noopener noreferrer" class="bg-white hover:bg-pueo-yellow text-pueo-black hover:text-black border border-neutral-200 hover:border-pueo-yellow px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">
-                         Open Briefing <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                       </a>`;
+                    ? '<button onclick="downloadPdf(\'' + doc.id + '\', \'' + doc.title + '\')" class="bg-white hover:bg-pueo-red text-pueo-red hover:text-white border border-neutral-200 hover:border-pueo-red px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">Download PDF <i class="fa-solid fa-file-pdf text-xs"></i></button>'
+                    : '<a href="' + doc.url + '" target="_blank" rel="noopener noreferrer" class="bg-white hover:bg-pueo-yellow text-pueo-black hover:text-black border border-neutral-200 hover:border-pueo-yellow px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">Open Hyperlink <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>';
 
                 card.innerHTML = `
                     <div class="p-5 flex-grow flex flex-col">
@@ -500,7 +506,7 @@
 
                         <!-- Custom-scrollbar container with solid contrast theme -->
                         <div class="mt-2 bg-neutral-900 p-3 rounded border border-neutral-800 flex-grow max-h-48 overflow-y-auto custom-scrollbar">
-                            <h4 class="text-[9px]/normal font-bold text-pueo-yellow uppercase tracking-wider mb-1">Checklist Guidelines</h4>
+                            <h4 class="text-[9px]/normal font-bold text-pueo-yellow uppercase tracking-wider mb-1">Advanced Instructions</h4>
                             <p class="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed">${doc.desc || 'No instructions provided.'}</p>
                         </div>
                     </div>
@@ -514,25 +520,25 @@
             });
         }
 
-        // Aviation flight colors mapped to squadron color rules
+        // Category colors mapped to squadron color rules
         function getCategoryColors(category) {
             switch(category) {
-                case 'Preflight': 
+                case 'In processing': 
                     return { 
                         badge: 'bg-amber-50 text-amber-800 border border-amber-300', 
                         borderTop: 'border-pueo-yellow' 
                     };
-                case 'Postflight': 
+                case 'MPA': 
                     return { 
                         badge: 'bg-red-50 text-pueo-red border border-red-200', 
                         borderTop: 'border-pueo-red' 
                     };
-                case 'Pubs & MDS': 
+                case 'LES': 
                     return { 
                         badge: 'bg-neutral-950 text-pueo-yellow border border-pueo-black', 
                         borderTop: 'border-pueo-black' 
                     };
-                case 'Operations': 
+                case 'operations': 
                     return { 
                         badge: 'bg-neutral-100 text-neutral-800 border border-neutral-400', 
                         borderTop: 'border-neutral-500' 
@@ -552,7 +558,7 @@
             });
 
             const sanitizedId = category.replace(/\s+/g, '-');
-            const activeBtn = document.getElementById(`btn-${sanitizedId}`);
+            const activeBtn = document.getElementById('btn-' + sanitizedId);
             if (activeBtn) {
                 activeBtn.className = "filter-btn active bg-pueo-black text-pueo-yellow border-2 border-pueo-yellow px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0";
             }
@@ -578,7 +584,7 @@
         function clearForm() {
             document.getElementById('docForm').reset();
             editingId = null;
-            document.getElementById('formTitleText').innerHTML = `<i class="fa-solid fa-plane-arrival text-pueo-red"></i> Upload Mission Asset to Flight Board`;
+            document.getElementById('formTitleText').innerHTML = '<i class="fa-solid fa-file-circle-plus text-pueo-red"></i> Upload Asset to Document Board';
             document.getElementById('formSubmitBtn').innerText = "Deploy to Dashboard";
             document.getElementById('pdfHelpText').classList.add('hidden');
             toggleInputFields();
