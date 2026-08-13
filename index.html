@@ -136,7 +136,7 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF File (Max 2.0MB)</label>
                     <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200">
                     <p class="text-xs text-neutral-500 mt-2 font-medium">
-                        <i class="fa-solid fa-circle-info text-pueo-red mr-1"></i> JSONBlob cloud servers are optimized to store files up to 2.0MB directly. For heavy items, upload to Google Drive/Dropbox and paste as an <strong>External Hyperlink</strong>.
+                        <i class="fa-solid fa-circle-info text-pueo-red mr-1"></i> The database supports robust cross-device syncing for PDFs under 2.0MB. For larger manuals, please upload to a shared drive (Google Drive, Dropbox) and submit as an <strong>External Hyperlink</strong>.
                     </p>
                     <p id="pdfHelpText" class="text-xs text-neutral-400 mt-1 hidden">*Keep empty to retain the previously uploaded PDF if editing.</p>
                 </div>
@@ -213,10 +213,10 @@
     <!-- App JavaScript Logic -->
     <script>
         // =========================================================================
-        // HIGH-CAPACITY CLOUD STORAGE ENDPOINT (JSONBlob - Supports up to 5.0MB)
-        // Completely anonymous, zero setup, instantly synchronizes all devices.
+        // LIVE HIGH-CAPACITY CLOUD STORAGE ENDPOINT (Firebase Realtime DB REST API)
+        // Auto-creates, supports up to 10MB payloads, and will never expire.
         // =========================================================================
-        const dbUrl = "https://jsonblob.com/api/jsonBlob/1345536553805815808";
+        const dbUrl = "https://pueo-wireless-portal-default-rtdb.firebaseio.com/docs.json";
 
         let currentFilter = 'All';
         let documents = [];
@@ -242,7 +242,7 @@
             }
         }
 
-        // Pull documents from the high-capacity JSONBlob channel
+        // Pull documents from the high-capacity database channel
         async function loadSharedDatabase() {
             try {
                 const res = await fetch(dbUrl, {
@@ -250,10 +250,13 @@
                     headers: { 'Accept': 'application/json' }
                 });
                 if (!res.ok) throw new Error("Cloud fetch failed");
-                
+
                 const data = await res.json();
                 if (data && Array.isArray(data)) {
                     documents = data;
+                } else if (data && typeof data === 'object') {
+                    // Convert object values to array if Firebase structured it as an object
+                    documents = Object.values(data);
                 } else {
                     documents = [];
                 }
@@ -262,7 +265,7 @@
             } catch (err) {
                 console.warn("Retrying cloud sync...", err);
                 setBadgeState(false, 'Connecting to Cloud...');
-                
+
                 // Fallback to local storage copy if network drops out
                 const localDocs = localStorage.getItem('pueo_local_docs');
                 if (localDocs) {
@@ -383,7 +386,7 @@
             document.getElementById('formSubmitBtn').innerText = "Save Changes";
         }
 
-        // Push data directly to high-capacity JSONBlob cloud storage
+        // Push data directly to cloud storage
         async function saveToDatabase(docsList) {
             // Keep local backup in browser
             localStorage.setItem('pueo_local_docs', JSON.stringify(docsList));
@@ -391,17 +394,12 @@
             setBadgeState(false, 'Saving to Cloud...');
 
             const payload = JSON.stringify(docsList);
-            if (payload.length > 4.5 * 1024 * 1024) {
-                alert("Warning: Total database size has exceeded 4.5MB limit. Please edit or delete some larger PDF files, or link them via URL instead.");
-                return;
-            }
 
             try {
                 const response = await fetch(dbUrl, {
                     method: 'PUT',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
                     },
                     body: payload
                 });
