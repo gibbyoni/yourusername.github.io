@@ -64,7 +64,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-black tracking-wider uppercase text-pueo-yellow">PUEO Wireless</h1>
-                    <p class="text-xs text-neutral-300">Centralized Document & Link Repository</p>
+                    <p class="text-xs text-neutral-300">Centralized Document & How to</p>
                 </div>
             </div>
 
@@ -129,10 +129,10 @@
                 </div>
 
                 <div id="pdfInputContainer" class="md:col-span-2 hidden">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF File (Max 150KB)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF File (Max 2.0MB)</label>
                     <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200">
                     <p class="text-xs text-neutral-500 mt-2 font-medium">
-                        <i class="fa-solid fa-circle-info text-pueo-red mr-1"></i> For larger PDFs, upload the file to Google Drive, Dropbox, or OneDrive and submit it above as an <strong>External Hyperlink</strong>. This ensures seamless syncing across all platforms.
+                        <i class="fa-solid fa-circle-info text-pueo-red mr-1"></i> Direct uploads are configured for files up to 2.0MB. For extremely large files, upload to Google Drive/Dropbox and paste as an <strong>External Hyperlink</strong>.
                     </p>
                     <p id="pdfHelpText" class="text-xs text-neutral-400 mt-1 hidden">*Keep empty to retain the previously uploaded PDF if editing.</p>
                 </div>
@@ -221,7 +221,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
             loadSharedDatabase();
-            
+
             // Automatically update database lists every 5 seconds to keep all open devices in sync
             setInterval(loadSharedDatabase, 5000);
         });
@@ -234,7 +234,7 @@
                     throw new Error("Cloud fetch failed");
                 }
                 const data = await res.json();
-                
+
                 if (data && Array.isArray(data)) {
                     documents = data;
                 } else {
@@ -290,8 +290,8 @@
                     }
                 } else {
                     const file = fileInput.files[0];
-                    if (file.size > 180 * 1024) {
-                        alert("PDF file is too large! Please choose a PDF under 150KB, or upload it to Google Drive and submit it as an External Hyperlink to keep your sync system running optimally.");
+                    if (file.size > 2000 * 1024) {
+                        alert("PDF file is too large! Please choose a PDF under 2.0MB, or upload it to Google Drive and submit it as an External Hyperlink to keep your sync system running optimally.");
                         return;
                     }
                     const reader = new FileReader();
@@ -369,11 +369,18 @@
             localStorage.setItem('pueo_local_docs', JSON.stringify(docsList));
             renderDocuments();
 
+            const payload = JSON.stringify(docsList);
+            // Quick alert guard if database limits might reject it
+            if (payload.length > 3.5 * 1024 * 1024) {
+                alert("Database limit warning: Your accumulated PDF documents are too large for the public server. Please edit some items to use 'External Hyperlinks' instead.");
+                return;
+            }
+
             try {
                 const response = await fetch(dbUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(docsList)
+                    body: payload
                 });
                 if (!response.ok) {
                     throw new Error("Sync rejected by cloud");
