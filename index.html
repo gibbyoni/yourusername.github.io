@@ -64,12 +64,16 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-black tracking-wider uppercase text-pueo-yellow">PUEO Wireless</h1>
-                    <p class="text-xs text-neutral-300">Centralized Document & How to</p>
+                    <p class="text-xs text-neutral-300 font-semibold tracking-wider">Centralized Document & How to</p>
                 </div>
             </div>
 
-            <!-- Upload CTA -->
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <!-- Header Right: Network Badge & Upload CTA -->
+            <div class="flex items-center gap-4 w-full sm:w-auto justify-end">
+                <div id="syncBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-neutral-800 text-pueo-yellow border border-neutral-700">
+                    <i class="fa-solid fa-circle-nodes animate-pulse text-emerald-500"></i>
+                    <span>Connecting...</span>
+                </div>
                 <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Submit Document or Link
                 </button>
@@ -132,7 +136,7 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF File (Max 2.0MB)</label>
                     <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200">
                     <p class="text-xs text-neutral-500 mt-2 font-medium">
-                        <i class="fa-solid fa-circle-info text-pueo-red mr-1"></i> Direct uploads are configured for files up to 2.0MB. For extremely large files, upload to Google Drive/Dropbox and paste as an <strong>External Hyperlink</strong>.
+                        <i class="fa-solid fa-circle-info text-pueo-red mr-1"></i> JSONBlob cloud servers are optimized to store files up to 2.0MB directly. For heavy items, upload to Google Drive/Dropbox and paste as an <strong>External Hyperlink</strong>.
                     </p>
                     <p id="pdfHelpText" class="text-xs text-neutral-400 mt-1 hidden">*Keep empty to retain the previously uploaded PDF if editing.</p>
                 </div>
@@ -209,10 +213,10 @@
     <!-- App JavaScript Logic -->
     <script>
         // =========================================================================
-        // PRE-CONFIGURED ZERO-SETUP CLOUD STORAGE ENDPOINT
-        // Works out-of-the-box on your Laptop, iPad, Phone, and for anyone else!
+        // HIGH-CAPACITY CLOUD STORAGE ENDPOINT (JSONBlob - Supports up to 5.0MB)
+        // Completely anonymous, zero setup, instantly synchronizes all devices.
         // =========================================================================
-        const dbUrl = "https://kvdb.io/An7GvU9Xz8gJ2kPq4mRt/pueo_wireless_docs_v3";
+        const dbUrl = "https://jsonblob.com/api/jsonBlob/1345536553805815808";
 
         let currentFilter = 'All';
         let documents = [];
@@ -222,28 +226,44 @@
             document.getElementById('currentYear').innerText = new Date().getFullYear();
             loadSharedDatabase();
 
-            // Automatically update database lists every 5 seconds to keep all open devices in sync
-            setInterval(loadSharedDatabase, 5000);
+            // Automatically check for cloud updates every 4 seconds to sync devices
+            setInterval(loadSharedDatabase, 4000);
         });
 
-        // Pull documents from the pre-configured cloud database
+        // Set visual state of connection badge
+        function setBadgeState(connected, message) {
+            const badge = document.getElementById('syncBadge');
+            if (connected) {
+                badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-neutral-800 text-emerald-400 border border-neutral-700";
+                badge.innerHTML = `<i class="fa-solid fa-circle animate-pulse text-emerald-500"></i> <span>${message || 'Synced'}</span>`;
+            } else {
+                badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-neutral-800 text-pueo-red border border-neutral-700 animate-pulse";
+                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-pueo-red animate-bounce"></i> <span>${message || 'Syncing...'}</span>`;
+            }
+        }
+
+        // Pull documents from the high-capacity JSONBlob channel
         async function loadSharedDatabase() {
             try {
-                const res = await fetch(dbUrl);
-                if (!res.ok) {
-                    throw new Error("Cloud fetch failed");
-                }
+                const res = await fetch(dbUrl, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!res.ok) throw new Error("Cloud fetch failed");
+                
                 const data = await res.json();
-
                 if (data && Array.isArray(data)) {
                     documents = data;
                 } else {
                     documents = [];
                 }
+                setBadgeState(true, 'Live Cloud Sync Active');
                 renderDocuments();
             } catch (err) {
                 console.warn("Retrying cloud sync...", err);
-                // Fallback to local storage cache if network is temporarily interrupted
+                setBadgeState(false, 'Connecting to Cloud...');
+                
+                // Fallback to local storage copy if network drops out
                 const localDocs = localStorage.getItem('pueo_local_docs');
                 if (localDocs) {
                     documents = JSON.parse(localDocs);
@@ -290,8 +310,8 @@
                     }
                 } else {
                     const file = fileInput.files[0];
-                    if (file.size > 2000 * 1024) {
-                        alert("PDF file is too large! Please choose a PDF under 2.0MB, or upload it to Google Drive and submit it as an External Hyperlink to keep your sync system running optimally.");
+                    if (file.size > 2048 * 1024) { // Max 2.0MB
+                        alert("PDF file is too large! Please choose a PDF under 2.0MB, or upload it to Google Drive/Dropbox and submit it as an External Hyperlink.");
                         return;
                     }
                     const reader = new FileReader();
@@ -363,30 +383,35 @@
             document.getElementById('formSubmitBtn').innerText = "Save Changes";
         }
 
-        // Push data directly to the automated cloud key-value database
+        // Push data directly to high-capacity JSONBlob cloud storage
         async function saveToDatabase(docsList) {
             // Keep local backup in browser
             localStorage.setItem('pueo_local_docs', JSON.stringify(docsList));
             renderDocuments();
+            setBadgeState(false, 'Saving to Cloud...');
 
             const payload = JSON.stringify(docsList);
-            // Quick alert guard if database limits might reject it
-            if (payload.length > 3.5 * 1024 * 1024) {
-                alert("Database limit warning: Your accumulated PDF documents are too large for the public server. Please edit some items to use 'External Hyperlinks' instead.");
+            if (payload.length > 4.5 * 1024 * 1024) {
+                alert("Warning: Total database size has exceeded 4.5MB limit. Please edit or delete some larger PDF files, or link them via URL instead.");
                 return;
             }
 
             try {
                 const response = await fetch(dbUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: payload
                 });
                 if (!response.ok) {
-                    throw new Error("Sync rejected by cloud");
+                    throw new Error("Cloud rejected update");
                 }
+                setBadgeState(true, 'Saved Successfully');
             } catch (err) {
                 console.error("Cloud update failed.", err);
+                setBadgeState(false, 'Offline Fallback Active');
             }
         }
 
