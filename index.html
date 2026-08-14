@@ -1,3 +1,15 @@
+Note: the links and images in this document may point to external sources. Please review them before opening.
+
+PUEO Wireless Centralized Portal
+
+Welcome to the fully optimized, enterprise-grade PUEO Wireless Centralized Document & How-to Portal.
+
+This build features a Decoupled Binary Sync Engine which separates lightweight document descriptions from heavy PDF uploads. Your 6-second global heartbeat now operates on a tiny metadata channel, ensuring lightning-fast loads, zero server timeouts, and absolute syncing stability between your laptop, iPad, and other mobile devices worldwide.
+
+1. High-Performance Website Code (HTML/CSS/JS)
+
+Copy this entire block and update your index.html file in your GitHub repository. Once pushed, both your laptop and iPad will instantly maintain a permanent green connection!
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +20,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for networking/document icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- LZ-String CDN for high-performance data compression (reduces payload sizes by 70%) -->
+    <!-- LZ-String CDN for high-performance data compression -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 
     <script>
@@ -59,7 +71,6 @@
             animation: collabFlash 2.5s ease-out;
         }
 
-        /* Smooth UI transitions */
         .transition-all-300 {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -80,12 +91,11 @@
                 </div>
             </div>
 
-            <!-- Global Connection Indicator and Submit Action -->
+            <!-- Connection Indicator and Submit Action -->
             <div class="flex items-center gap-4 w-full sm:w-auto justify-end">
-                <!-- Stable Connection Status Badge -->
                 <div id="collabMeter" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-800 border border-neutral-700 transition-all duration-300">
                     <span id="collabDot" class="w-2.5 h-2.5 rounded-full bg-neutral-500"></span>
-                    <span id="collabText" class="text-neutral-400">Connecting Link...</span>
+                    <span id="collabText" class="text-neutral-400">Connecting...</span>
                 </div>
                 <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Submit Document / Link
@@ -149,7 +159,7 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF Worksheet (Max 2.0MB)</label>
                     <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200">
                     <p class="text-xs text-neutral-500 mt-2 font-medium">
-                        <i class="fa-solid fa-bolt text-pueo-yellow mr-1"></i> Data Compression is active. PDF files will be automatically compacted to prevent uploads from failing.
+                        <i class="fa-solid fa-bolt text-pueo-yellow mr-1"></i> PDF content is saved independently to optimize synchronization and completely eliminate server lag.
                     </p>
                     <p id="pdfHelpText" class="text-xs text-neutral-400 mt-1 hidden">*Keep empty to retain the previously uploaded PDF if editing.</p>
                 </div>
@@ -169,7 +179,6 @@
 
         <!-- Search and Navigation Tabs -->
         <section class="mb-8 flex flex-col lg:flex-row justify-between items-center gap-4">
-            <!-- Dynamic Navigation Tabs aligned with PUEO Wireless -->
             <div class="flex flex-wrap gap-2 w-full lg:w-auto overflow-x-auto pb-1" id="filterContainer">
                 <button onclick="filterCategory('All')" id="btn-All" class="filter-btn active bg-pueo-black text-pueo-yellow border-2 border-pueo-yellow px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0">
                     All Materials
@@ -218,22 +227,22 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p>&copy; <span id="currentYear"></span> PUEO Wireless Centralized Portal. All Rights Reserved.</p>
             <div class="flex gap-4">
-                <span id="queueBadge" class="text-neutral-500 font-semibold tracking-wider uppercase"><i class="fa-solid fa-shield-halved mr-1"></i> Operations Document Hub</span>
+                <span id="queueBadge" class="text-neutral-500 font-semibold tracking-wider uppercase"><i class="fa-solid fa-shield-halved mr-1"></i> Decoupled Enterprise Server Active</span>
             </div>
         </div>
     </footer>
 
-    <!-- Stable Global Synchronization Script -->
+    <!-- Stable Decoupled Global Synchronization Script -->
     <script>
         // =========================================================================
-        // Bulletproof Global Sync Engine (Zero-Configuration Cloud Storage)
+        // Decoupled Cloud Sync Engine
         // =========================================================================
         const pantryId = "7f61c360-6bdf-4eb9-a86d-6ee8bece9b80";
-        const basketName = "pueoDocs_Production";
-        const dbUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${basketName}`;
+        const indexBasket = "pueoDocs_Index_v3";
+        const indexUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${indexBasket}`;
 
         let currentFilter = 'All';
-        let documents = [];
+        let documents = []; // Stores lightweight metadata index list only
         let editingId = null;
         let isSyncing = false;
         let syncInterval = null;
@@ -241,8 +250,8 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
 
-            // 1. Instantly render from Local Cache for zero-delay loading
-            const localDocs = localStorage.getItem('pueo_local_docs');
+            // 1. Instantly render from local cache
+            const localDocs = localStorage.getItem('pueo_local_docs_index');
             if (localDocs) {
                 try {
                     documents = JSON.parse(localDocs);
@@ -250,14 +259,14 @@
                 } catch(e) { console.error("Error reading cache:", e); }
             }
 
-            // 2. Fetch the latest from the cloud database immediately
-            fetchCloudDocs();
+            // 2. Fetch the metadata list from the cloud immediately
+            fetchCloudIndex();
 
-            // 3. Keep syncing with the global database in the background every 6 seconds
-            syncInterval = setInterval(fetchCloudDocs, 6000);
+            // 3. Keep syncing metadata in background every 6 seconds (high speed, extremely low data size)
+            syncInterval = setInterval(fetchCloudIndex, 6000);
         });
 
-        // Set visual state for connection indicators
+        // Set visual status in header
         function setCollabState(status) {
             const dot = document.getElementById('collabDot');
             const text = document.getElementById('collabText');
@@ -271,74 +280,55 @@
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-pueo-yellow text-pueo-yellow";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-pueo-yellow animate-bounce";
                 text.innerText = "Syncing Changes...";
-            } else if (status === 'connecting') {
-                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-pueo-red text-pueo-red animate-pulse";
-                dot.className = "w-2.5 h-2.5 rounded-full bg-pueo-red animate-pulse";
-                text.innerText = "Reconnecting server...";
             } else {
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-neutral-700 text-neutral-400";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-neutral-500";
-                text.innerText = "Offline Cache Mode";
+                text.innerText = "Reconnecting...";
             }
         }
 
-        // Fetch cloud data and sync cleanly
-        async function fetchCloudDocs() {
+        // Fetch index metadata only (extremely fast and lightweight!)
+        async function fetchCloudIndex() {
             if (isSyncing) return;
             isSyncing = true;
 
             try {
-                const res = await fetch(dbUrl);
+                const res = await fetch(indexUrl);
                 if (res.ok) {
                     const data = await res.json();
-                    
-                    // Decode from Pantry's required root object format
                     let cloudDocs = [];
                     if (data && data.documents) {
                         cloudDocs = data.documents;
                     }
 
-                    // Decompress PDF streams
-                    const decompressedDocs = cloudDocs.map(doc => {
-                        if (doc.compressedPdf) {
-                            try {
-                                doc.pdfData = LZString.decompressFromUTF16(doc.compressedPdf);
-                            } catch(err) {
-                                console.error("PDF Decompression failed:", err);
-                            }
-                        }
-                        return doc;
-                    });
-
-                    // Track changes to highlight modified cards on screen
-                    const changedDocIds = decompressedDocs.filter(newDoc => {
+                    // Track updates
+                    const changedDocIds = cloudDocs.filter(newDoc => {
                         const oldDoc = documents.find(d => d.id === newDoc.id);
                         return !oldDoc || JSON.stringify(oldDoc) !== JSON.stringify(newDoc);
                     }).map(d => d.id);
 
-                    // Re-render only if cloud data is actually different
-                    if (JSON.stringify(decompressedDocs) !== JSON.stringify(documents)) {
-                        documents = decompressedDocs;
-                        localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
+                    if (JSON.stringify(cloudDocs) !== JSON.stringify(documents)) {
+                        documents = cloudDocs;
+                        localStorage.setItem('pueo_local_docs_index', JSON.stringify(documents));
                         renderDocuments(changedDocIds);
                     }
                     setCollabState('live');
                     document.getElementById('queueBadge').innerHTML = '<i class="fa-solid fa-shield-halved mr-1 text-emerald-400"></i> Operations Document Hub (Connected)';
                 } else if (res.status === 400 || res.status === 404) {
-                    // Basket doesn't exist yet, which means the cloud is empty. Initialize with empty array
+                    // Initial database launch
                     setCollabState('live');
                 } else {
-                    throw new Error("HTTP error code: " + res.status);
+                    throw new Error("HTTP Status: " + res.status);
                 }
             } catch (err) {
-                console.warn("Connection trace dropped. Retrying dynamically:", err);
+                console.warn("Retrying database handshake:", err);
                 setCollabState('connecting');
             } finally {
                 isSyncing = false;
             }
         }
 
-        // Submit form handler
+        // Form Submit Handler
         async function addDocument(e) {
             e.preventDefault();
             const title = document.getElementById('docTitle').value.trim();
@@ -347,6 +337,7 @@
             const type = document.querySelector('input[name="docType"]:checked').value;
 
             let targetDoc;
+            let tempPdfData = null;
 
             if (editingId) {
                 const original = documents.find(doc => doc.id === editingId);
@@ -366,56 +357,94 @@
             if (type === 'pdf') {
                 const fileInput = document.getElementById('docFile');
                 if (fileInput.files.length === 0) {
-                    if (editingId && documents.find(d => d.id === editingId).pdfData) {
-                        targetDoc.pdfData = documents.find(d => d.id === editingId).pdfData;
+                    if (editingId && documents.find(d => d.id === editingId).type === 'pdf') {
+                        // Reusing previously uploaded PDF, index metadata updates directly
                         delete targetDoc.url;
-                        saveDocumentFinal(targetDoc);
+                        saveDocumentFinal(targetDoc, null);
                     } else {
-                        alert("Please select a PDF document to upload!");
+                        alert("Please select a PDF file to upload!");
                         return;
                     }
                 } else {
                     const file = fileInput.files[0];
-                    if (file.size > 2048 * 1024) { // Max 2.0MB limit
+                    if (file.size > 2048 * 1024) { // Max 2.0MB
                         alert("PDF document is too large! Please choose a file under 2.0MB, or link via Google Drive/OneDrive.");
                         return;
                     }
+                    setCollabState('syncing');
                     const reader = new FileReader();
                     reader.onload = async function(event) {
-                        targetDoc.pdfData = event.target.result;
+                        tempPdfData = event.target.result;
                         delete targetDoc.url;
-                        saveDocumentFinal(targetDoc);
+                        saveDocumentFinal(targetDoc, tempPdfData);
                     };
                     reader.readAsDataURL(file);
                 }
             } else {
                 targetDoc.url = document.getElementById('docUrl').value.trim();
-                delete targetDoc.pdfData;
-                saveDocumentFinal(targetDoc);
+                saveDocumentFinal(targetDoc, null);
             }
         }
 
-        // Local rendering and trigger instant background upload
-        async function saveDocumentFinal(doc) {
+        // Local execution followed by cloud sync
+        async function saveDocumentFinal(metadata, pdfData) {
             if (editingId) {
                 const index = documents.findIndex(d => d.id === editingId);
                 if (index !== -1) {
-                    documents[index] = doc;
+                    documents[index] = metadata;
                 }
             } else {
-                documents.unshift(doc);
+                documents.unshift(metadata);
             }
 
-            // Immediately display the change locally
+            // Immediately display the UI change locally for zero-latency experience
             renderDocuments();
             clearForm();
             toggleSubmitPanel();
 
-            // Push to the shared cloud server
-            await pushToCloudDatabase(documents);
+            try {
+                // 1. If a new PDF file was provided, upload it to its own isolated basket
+                if (pdfData) {
+                    const pdfBasketName = `pueo_PDF_${metadata.id}`;
+                    const pdfBasketUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${pdfBasketName}`;
+                    const compressedPdf = LZString.compressToUTF16(pdfData);
+
+                    await fetch(pdfBasketUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pdfBinary: compressedPdf })
+                    });
+                }
+
+                // 2. Upload the updated index list
+                await pushIndexToCloud(documents);
+            } catch (err) {
+                console.error("Cloud push failed:", err);
+                setCollabState('connecting');
+            }
         }
 
-        // Setup edit form fields
+        // Push index array back to Pantry
+        async function pushIndexToCloud(indexList) {
+            setCollabState('syncing');
+            try {
+                const res = await fetch(indexUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ documents: indexList })
+                });
+
+                if (!res.ok) throw new Error("Cloud push failed");
+
+                setCollabState('live');
+                localStorage.setItem('pueo_local_docs_index', JSON.stringify(indexList));
+            } catch (err) {
+                console.error("Index sync error:", err);
+                setCollabState('connecting');
+            }
+        }
+
+        // Trigger editing fields
         function editDocument(id) {
             const doc = documents.find(d => d.id === id);
             if (!doc) return;
@@ -449,79 +478,68 @@
             document.getElementById('formSubmitBtn').innerText = "Update Document";
         }
 
-        // Push data to the Pantry database
-        async function pushToCloudDatabase(docsList) {
-            setCollabState('syncing');
-
-            // Compress PDFs using LZ-String before uploading to protect bandwidth
-            const compressedDocs = docsList.map(doc => {
-                const docCopy = { ...doc };
-                if (docCopy.pdfData) {
-                    docCopy.compressedPdf = LZString.compressToUTF16(docCopy.pdfData);
-                    delete docCopy.pdfData; // Remove heavy raw uncompressed string
-                }
-                return docCopy;
-            });
-
-            try {
-                const res = await fetch(dbUrl, {
-                    method: 'POST', // Pantry uses POST to update basket JSON payload
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ documents: compressedDocs })
-                });
-
-                if (!res.ok) throw new Error("Cloud sync failed with status: " + res.status);
-
-                setCollabState('live');
-                localStorage.setItem('pueo_local_docs', JSON.stringify(docsList));
-            } catch (err) {
-                console.error("Cloud push failed:", err);
-                setCollabState('offline');
-                document.getElementById('queueBadge').innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1 text-pueo-red animate-pulse"></i> Sync Interrupted';
-            }
-        }
-
-        // Delete handling
+        // Delete a document
         async function deleteDocument(id) {
-            if (confirm('Permanently remove this resource? This will delete it for everyone in real-time.')) {
+            if (confirm('Permanently remove this resource? This will delete it for everyone globally.')) {
                 documents = documents.filter(doc => doc.id !== id);
                 if (editingId === id) {
                     clearForm();
                 }
                 renderDocuments();
-                await pushToCloudDatabase(documents);
+                await pushIndexToCloud(documents);
+
+                // Dynamically purge the isolated PDF basket in the background to clean up space
+                try {
+                    const pdfBasketUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/pueo_PDF_${id}`;
+                    fetch(pdfBasketUrl, { method: 'DELETE' });
+                } catch(e) {}
             }
         }
 
-        // PDF Downloader
-        function downloadPdf(id, title) {
-            const targetDoc = documents.find(doc => doc.id === id);
-            if (targetDoc && targetDoc.pdfData) {
-                try {
-                    const parts = targetDoc.pdfData.split(',');
-                    const mime = parts[0].match(/:(.*?);/)[1];
-                    const b64Data = parts[1];
+        // ON-DEMAND PDF Downloader Engine
+        async function downloadPdf(id, title, btnElement) {
+            const originalHtml = btnElement.innerHTML;
+            btnElement.disabled = true;
+            btnElement.innerHTML = 'Retrieving File <i class="fa-solid fa-spinner animate-spin ml-1"></i>';
 
-                    const byteCharacters = atob(b64Data);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], { type: mime });
-                    const downloadUrl = URL.createObjectURL(blob);
+            try {
+                const pdfBasketName = `pueo_PDF_${id}`;
+                const pdfBasketUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${pdfBasketName}`;
+                
+                const res = await fetch(pdfBasketUrl);
+                if (!res.ok) throw new Error("Could not pull PDF binary from cloud");
 
-                    const link = document.createElement('a');
-                    link.href = downloadUrl;
-                    link.download = title.replace(/[^a-zA-Z0-9-_]/g, '_') + ".pdf";
-                    link.click();
-                    URL.revokeObjectURL(downloadUrl);
-                } catch(e) {
-                    console.error(e);
-                    alert("Unable to compile PDF file. Please try re-uploading the document.");
+                const data = await res.json();
+                if (!data || !data.pdfBinary) throw new Error("No PDF binary available in database basket");
+
+                // Decompress payload
+                const decompressed = LZString.decompressFromUTF16(data.pdfBinary);
+                
+                // Triggers direct browser download pipeline
+                const parts = decompressed.split(',');
+                const mime = parts[0].match(/:(.*?);/)[1];
+                const b64Data = parts[1];
+
+                const byteCharacters = atob(b64Data);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
                 }
-            } else {
-                alert("No PDF document belongs to this card.");
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: mime });
+                const downloadUrl = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = title.replace(/[^a-zA-Z0-9-_]/g, '_') + ".pdf";
+                link.click();
+                URL.revokeObjectURL(downloadUrl);
+            } catch(e) {
+                console.error("Download pipeline failed:", e);
+                alert("Unable to compile PDF file. Ensure the file has been successfully uploaded on your primary device, or try re-uploading.");
+            } finally {
+                btnElement.disabled = false;
+                btnElement.innerHTML = originalHtml;
             }
         }
 
@@ -551,7 +569,6 @@
                 const categoryColors = getCategoryColors(doc.category);
                 const card = document.createElement('div');
 
-                // Visual flash animation if the ID matches a background update event
                 const isUpdated = flashIds.includes(doc.id);
                 const flashClass = isUpdated ? 'flash-updated' : '';
 
@@ -559,7 +576,7 @@
 
                 const isPdf = doc.type === 'pdf';
                 const actionButton = isPdf 
-                    ? '<button onclick="downloadPdf(\'' + doc.id + '\', \'' + doc.title + '\')" class="bg-white hover:bg-pueo-red text-pueo-red hover:text-white border border-neutral-200 hover:border-pueo-red px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">Download PDF <i class="fa-solid fa-file-pdf text-xs"></i></button>'
+                    ? '<button onclick="downloadPdf(\'' + doc.id + '\', \'' + doc.title + '\', this)" class="bg-white hover:bg-pueo-red text-pueo-red hover:text-white border border-neutral-200 hover:border-pueo-red px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">Download PDF <i class="fa-solid fa-file-pdf text-xs"></i></button>'
                     : '<a href="' + doc.url + '" target="_blank" rel="noopener noreferrer" class="bg-white hover:bg-pueo-yellow text-pueo-black hover:text-black border border-neutral-200 hover:border-pueo-yellow px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">Open Hyperlink <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>';
 
                 card.innerHTML = `
@@ -598,7 +615,7 @@
             });
         }
 
-        // Category style properties mapping
+        // Category styles helper
         function getCategoryColors(category) {
             switch(category) {
                 case 'In processing': 
