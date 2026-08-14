@@ -80,11 +80,11 @@
                 </div>
             </div>
 
-            <!-- Signal Strength and Form Toggle -->
+            <!-- Global Connection Indicator and Submit Action -->
             <div class="flex items-center gap-4 w-full sm:w-auto justify-end">
-                <!-- Real-time Collab Indicator -->
+                <!-- Stable Connection Status Badge -->
                 <div id="collabMeter" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-800 border border-neutral-700 transition-all duration-300">
-                    <span id="collabDot" class="w-2.5 h-2.5 rounded-full bg-neutral-500 animate-ping"></span>
+                    <span id="collabDot" class="w-2.5 h-2.5 rounded-full bg-neutral-500"></span>
                     <span id="collabText" class="text-neutral-400">Connecting Link...</span>
                 </div>
                 <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow">
@@ -223,36 +223,41 @@
         </div>
     </footer>
 
-    <!-- Real-time Google Docs Collaboration Script -->
+    <!-- Stable Global Synchronization Script -->
     <script>
         // =========================================================================
-        // LIVE REAL-TIME SYNCHRONIZATION ENGINE (Server-Sent Events)
+        // Bulletproof Global Sync Engine (Zero-Configuration Cloud Storage)
         // =========================================================================
-        const dbUrl = "https://pueo-wireless-realtime-v3-default-rtdb.firebaseio.com/docs.json";
+        const pantryId = "7f61c360-6bdf-4eb9-a86d-6ee8bece9b80";
+        const basketName = "pueoDocs_Production";
+        const dbUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${basketName}`;
 
         let currentFilter = 'All';
         let documents = [];
         let editingId = null;
-        let eventSource = null;
         let isSyncing = false;
+        let syncInterval = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').innerText = new Date().getFullYear();
 
-            // 1. Immediately paint UI from Local Cache for super-fast loads
+            // 1. Instantly render from Local Cache for zero-delay loading
             const localDocs = localStorage.getItem('pueo_local_docs');
             if (localDocs) {
                 try {
                     documents = JSON.parse(localDocs);
                     renderDocuments();
-                } catch(e) { console.error("Error loading cache:", e); }
+                } catch(e) { console.error("Error reading cache:", e); }
             }
 
-            // 2. Establish Google Docs-style real-time connection stream
-            connectRealtimeStream();
+            // 2. Fetch the latest from the cloud database immediately
+            fetchCloudDocs();
+
+            // 3. Keep syncing with the global database in the background every 6 seconds
+            syncInterval = setInterval(fetchCloudDocs, 6000);
         });
 
-        // Set visual state for the pulsing Live Collab heart badge
+        // Set visual state for connection indicators
         function setCollabState(status) {
             const dot = document.getElementById('collabDot');
             const text = document.getElementById('collabText');
@@ -260,113 +265,80 @@
 
             if (status === 'live') {
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-emerald-800 text-emerald-400";
-                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping";
-                text.innerText = "Google Docs Live Sync Active";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                text.innerText = "Global Cloud Sync Active";
             } else if (status === 'syncing') {
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-pueo-yellow text-pueo-yellow";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-pueo-yellow animate-bounce";
-                text.innerText = "Pushing Changes...";
+                text.innerText = "Syncing Changes...";
             } else if (status === 'connecting') {
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-pueo-red text-pueo-red animate-pulse";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-pueo-red animate-pulse";
-                text.innerText = "Connecting Realtime Stream...";
+                text.innerText = "Reconnecting server...";
             } else {
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-neutral-700 text-neutral-400";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-neutral-500";
-                text.innerText = "Offline Buffer Mode";
+                text.innerText = "Offline Cache Mode";
             }
         }
 
-        // Establishes Server-Sent Events (SSE) connection with Firebase Realtime Database REST Stream
-        function connectRealtimeStream() {
-            if (eventSource) {
-                eventSource.close();
-            }
+        // Fetch cloud data and sync cleanly
+        async function fetchCloudDocs() {
+            if (isSyncing) return;
+            isSyncing = true;
 
-            setCollabState('connecting');
-
-            // Native SSE listener maps instantly to server updates
-            eventSource = new EventSource(dbUrl);
-
-            eventSource.addEventListener('put', (event) => {
-                try {
-                    const response = JSON.parse(event.data);
-                    if (response && response.path === '/') {
-                        handleIncomingCloudData(response.data);
-                    } else {
-                        // Incremental change detected - trigger standard pull to keep data identical
-                        silentFetchCloudDocs();
-                    }
-                } catch (err) {
-                    console.error("Stream parse error:", err);
-                }
-            });
-
-            eventSource.addEventListener('patch', (event) => {
-                silentFetchCloudDocs(); // Patch event triggers background fetch
-            });
-
-            eventSource.onopen = () => {
-                setCollabState('live');
-            };
-
-            eventSource.onerror = (err) => {
-                console.warn("Collab link interrupted. Reconnecting in 5 seconds...");
-                setCollabState('connecting');
-                eventSource.close();
-                setTimeout(connectRealtimeStream, 5000); // Retry loop
-            };
-        }
-
-        // Synchronize incoming cloud data with local store and flash modified items
-        function handleIncomingCloudData(data) {
-            let cloudDocs = [];
-            if (data) {
-                if (Array.isArray(data)) {
-                    cloudDocs = data.filter(item => item !== null);
-                } else if (typeof data === 'object') {
-                    if (data.documents && Array.isArray(data.documents)) {
-                        cloudDocs = data.documents.filter(item => item !== null);
-                    } else {
-                        cloudDocs = Object.values(data).filter(item => item !== null);
-                    }
-                }
-            }
-
-            // Decompress PDFs locally
-            const decompressedDocs = cloudDocs.map(doc => {
-                if (doc.compressedPdf) {
-                    doc.pdfData = LZString.decompressFromUTF16(doc.compressedPdf);
-                }
-                return doc;
-            });
-
-            // Find items edited or added by other peers to flash them in gold
-            const changedDocIds = decompressedDocs.filter(newDoc => {
-                const oldDoc = documents.find(d => d.id === newDoc.id);
-                return !oldDoc || JSON.stringify(oldDoc) !== JSON.stringify(newDoc);
-            }).map(d => d.id);
-
-            // Avoid infinite redraw loops if data is identical
-            if (JSON.stringify(decompressedDocs) !== JSON.stringify(documents)) {
-                documents = decompressedDocs;
-                localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
-                renderDocuments(changedDocIds);
-            }
-        }
-
-        // Silent HTTP GET callback to verify state matches exactly
-        async function silentFetchCloudDocs() {
             try {
                 const res = await fetch(dbUrl);
                 if (res.ok) {
                     const data = await res.json();
-                    handleIncomingCloudData(data);
+                    
+                    // Decode from Pantry's required root object format
+                    let cloudDocs = [];
+                    if (data && data.documents) {
+                        cloudDocs = data.documents;
+                    }
+
+                    // Decompress PDF streams
+                    const decompressedDocs = cloudDocs.map(doc => {
+                        if (doc.compressedPdf) {
+                            try {
+                                doc.pdfData = LZString.decompressFromUTF16(doc.compressedPdf);
+                            } catch(err) {
+                                console.error("PDF Decompression failed:", err);
+                            }
+                        }
+                        return doc;
+                    });
+
+                    // Track changes to highlight modified cards on screen
+                    const changedDocIds = decompressedDocs.filter(newDoc => {
+                        const oldDoc = documents.find(d => d.id === newDoc.id);
+                        return !oldDoc || JSON.stringify(oldDoc) !== JSON.stringify(newDoc);
+                    }).map(d => d.id);
+
+                    // Re-render only if cloud data is actually different
+                    if (JSON.stringify(decompressedDocs) !== JSON.stringify(documents)) {
+                        documents = decompressedDocs;
+                        localStorage.setItem('pueo_local_docs', JSON.stringify(documents));
+                        renderDocuments(changedDocIds);
+                    }
+                    setCollabState('live');
+                    document.getElementById('queueBadge').innerHTML = '<i class="fa-solid fa-shield-halved mr-1 text-emerald-400"></i> Operations Document Hub (Connected)';
+                } else if (res.status === 400 || res.status === 404) {
+                    // Basket doesn't exist yet, which means the cloud is empty. Initialize with empty array
+                    setCollabState('live');
+                } else {
+                    throw new Error("HTTP error code: " + res.status);
                 }
-            } catch(e) { console.warn("Background fetch failed:", e); }
+            } catch (err) {
+                console.warn("Connection trace dropped. Retrying dynamically:", err);
+                setCollabState('connecting');
+            } finally {
+                isSyncing = false;
+            }
         }
 
-        // Handles document creation/editing
+        // Submit form handler
         async function addDocument(e) {
             e.preventDefault();
             const title = document.getElementById('docTitle').value.trim();
@@ -423,7 +395,7 @@
             }
         }
 
-        // Local UI updates and schedules a cloud push
+        // Local rendering and trigger instant background upload
         async function saveDocumentFinal(doc) {
             if (editingId) {
                 const index = documents.findIndex(d => d.id === editingId);
@@ -434,14 +406,16 @@
                 documents.unshift(doc);
             }
 
-            // Instantly render locally first
+            // Immediately display the change locally
             renderDocuments();
-            await pushToCloudDatabase(documents);
             clearForm();
             toggleSubmitPanel();
+
+            // Push to the shared cloud server
+            await pushToCloudDatabase(documents);
         }
 
-        // Places item values inside the workspace fields
+        // Setup edit form fields
         function editDocument(id) {
             const doc = documents.find(d => d.id === id);
             if (!doc) return;
@@ -475,38 +449,39 @@
             document.getElementById('formSubmitBtn').innerText = "Update Document";
         }
 
-        // Pushes state array to the real-time Firebase DB using the compression engine
+        // Push data to the Pantry database
         async function pushToCloudDatabase(docsList) {
             setCollabState('syncing');
 
-            // Compress PDFs using LZ-String before uploading to bypass cloud data limits
+            // Compress PDFs using LZ-String before uploading to protect bandwidth
             const compressedDocs = docsList.map(doc => {
                 const docCopy = { ...doc };
                 if (docCopy.pdfData) {
                     docCopy.compressedPdf = LZString.compressToUTF16(docCopy.pdfData);
-                    delete docCopy.pdfData; // Remove uncompressed raw data URL
+                    delete docCopy.pdfData; // Remove heavy raw uncompressed string
                 }
                 return docCopy;
             });
 
             try {
                 const res = await fetch(dbUrl, {
-                    method: 'PUT', // PUT replaces the entire bucket cleanly
+                    method: 'POST', // Pantry uses POST to update basket JSON payload
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ documents: compressedDocs })
                 });
 
-                if (!res.ok) throw new Error("Cloud save returned status: " + res.status);
-                
+                if (!res.ok) throw new Error("Cloud sync failed with status: " + res.status);
+
                 setCollabState('live');
-                document.getElementById('queueBadge').innerHTML = '<i class="fa-solid fa-shield-halved mr-1 text-emerald-400"></i> Operations Document Hub (Synchronized)';
+                localStorage.setItem('pueo_local_docs', JSON.stringify(docsList));
             } catch (err) {
                 console.error("Cloud push failed:", err);
                 setCollabState('offline');
-                document.getElementById('queueBadge').innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1 text-pueo-red animate-pulse"></i> Connection Dropped';
+                document.getElementById('queueBadge').innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1 text-pueo-red animate-pulse"></i> Sync Interrupted';
             }
         }
 
+        // Delete handling
         async function deleteDocument(id) {
             if (confirm('Permanently remove this resource? This will delete it for everyone in real-time.')) {
                 documents = documents.filter(doc => doc.id !== id);
@@ -518,7 +493,7 @@
             }
         }
 
-        // Decode binary PDF streams directly in-browser
+        // PDF Downloader
         function downloadPdf(id, title) {
             const targetDoc = documents.find(doc => doc.id === id);
             if (targetDoc && targetDoc.pdfData) {
@@ -550,7 +525,7 @@
             }
         }
 
-        // Render card grids with visual flashing when modified by other users
+        // Render card layouts
         function renderDocuments(flashIds = []) {
             const grid = document.getElementById('documentsGrid');
             const emptyState = document.getElementById('emptyState');
@@ -575,8 +550,8 @@
             filtered.forEach(doc => {
                 const categoryColors = getCategoryColors(doc.category);
                 const card = document.createElement('div');
-                
-                // Add the flash-updated styling if the document ID matches a real-time edit event
+
+                // Visual flash animation if the ID matches a background update event
                 const isUpdated = flashIds.includes(doc.id);
                 const flashClass = isUpdated ? 'flash-updated' : '';
 
@@ -607,7 +582,7 @@
                             ${doc.title}
                         </h3>
 
-                        <!-- Custom scrollbar container with solid contrast theme -->
+                        <!-- Instructions box with custom dark styling and scrollbars -->
                         <div class="mt-2 bg-neutral-900 p-3 rounded border border-neutral-800 flex-grow max-h-48 overflow-y-auto custom-scrollbar">
                             <h4 class="text-[9px]/normal font-bold text-pueo-yellow uppercase tracking-wider mb-1">Advanced Instructions</h4>
                             <p class="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed">${doc.desc || 'No instructions provided.'}</p>
@@ -623,7 +598,7 @@
             });
         }
 
-        // Category colors mapped to squadron color rules
+        // Category style properties mapping
         function getCategoryColors(category) {
             switch(category) {
                 case 'In processing': 
