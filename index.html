@@ -1,15 +1,3 @@
-Note: the links and images in this document may point to external sources. Please review them before opening.
-
-PUEO Wireless Centralized Portal
-
-Welcome to the fully optimized, enterprise-grade PUEO Wireless Centralized Document & How-to Portal.
-
-This build features a Decoupled Binary Sync Engine which separates lightweight document descriptions from heavy PDF uploads. Your 6-second global heartbeat now operates on a tiny metadata channel, ensuring lightning-fast loads, zero server timeouts, and absolute syncing stability between your laptop, iPad, and other mobile devices worldwide.
-
-1. High-Performance Website Code (HTML/CSS/JS)
-
-Copy this entire block and update your index.html file in your GitHub repository. Once pushed, both your laptop and iPad will instantly maintain a permanent green connection!
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,6 +57,48 @@ Copy this entire block and update your index.html file in your GitHub repository
         }
         .flash-updated {
             animation: collabFlash 2.5s ease-out;
+        }
+
+        /* Custom Radar Loading Animation */
+        .pueo-radar-loader {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #FFB300;
+            border-bottom-color: #C62828;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: radarRotation 1s linear infinite;
+        }
+        @keyframes radarRotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alternative Animation Style (Sonar Pulse) */
+        .pueo-sonar-pulse {
+            width: 12px;
+            height: 12px;
+            background-color: #C62828;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+        .pueo-sonar-pulse::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: #FFB300;
+            border-radius: 50%;
+            transform: scale(1);
+            animation: sonarPulse 1.2s infinite ease-out;
+        }
+        @keyframes sonarPulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
         }
 
         .transition-all-300 {
@@ -275,7 +305,7 @@ Copy this entire block and update your index.html file in your GitHub repository
             if (status === 'live') {
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-emerald-800 text-emerald-400";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                text.innerText = "Global Cloud Sync Active";
+                text.innerText = "Live Cloud Sync Active";
             } else if (status === 'syncing') {
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-pueo-yellow text-pueo-yellow";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-pueo-yellow animate-bounce";
@@ -283,7 +313,7 @@ Copy this entire block and update your index.html file in your GitHub repository
             } else {
                 container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-neutral-700 text-neutral-400";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-neutral-500";
-                text.innerText = "Reconnecting...";
+                text.innerText = "Reconnecting server...";
             }
         }
 
@@ -496,16 +526,18 @@ Copy this entire block and update your index.html file in your GitHub repository
             }
         }
 
-        // ON-DEMAND PDF Downloader Engine
+        // ON-DEMAND PDF Downloader Engine with Custom Radar Loaders
         async function downloadPdf(id, title, btnElement) {
             const originalHtml = btnElement.innerHTML;
             btnElement.disabled = true;
-            btnElement.innerHTML = 'Retrieving File <i class="fa-solid fa-spinner animate-spin ml-1"></i>';
+
+            // Render the customizable tactical loader
+            btnElement.innerHTML = 'Retrieving <span class="pueo-radar-loader ml-2 mr-1 align-middle"></span>';
 
             try {
                 const pdfBasketName = `pueo_PDF_${id}`;
                 const pdfBasketUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${pdfBasketName}`;
-                
+
                 const res = await fetch(pdfBasketUrl);
                 if (!res.ok) throw new Error("Could not pull PDF binary from cloud");
 
@@ -514,7 +546,7 @@ Copy this entire block and update your index.html file in your GitHub repository
 
                 // Decompress payload
                 const decompressed = LZString.decompressFromUTF16(data.pdfBinary);
-                
+
                 // Triggers direct browser download pipeline
                 const parts = decompressed.split(',');
                 const mime = parts[0].match(/:(.*?);/)[1];
