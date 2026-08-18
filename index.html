@@ -108,9 +108,11 @@
 </head>
 <body class="bg-neutral-100 text-neutral-800 min-h-screen flex flex-col font-sans">
 
-    <!-- Header / Branding Banner -->
-    <header class="bg-pueo-black text-white shadow-md border-b-4 border-pueo-yellow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Headerless Branding & Control Bar Container -->
+        <div class="bg-pueo-black text-white rounded-2xl border-b-4 border-pueo-yellow p-6 mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-md">
             <div class="flex items-center gap-3">
                 <div class="bg-pueo-red p-2.5 rounded-lg shadow-md border border-pueo-yellow">
                     <i class="fa-solid fa-tower-cell text-2xl text-pueo-yellow animate-pulse"></i>
@@ -122,20 +124,16 @@
             </div>
 
             <!-- Connection Indicator and Submit Action -->
-            <div class="flex items-center gap-4 w-full sm:w-auto justify-end">
-                <div id="collabMeter" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-800 border border-neutral-700 transition-all duration-300">
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
+                <div id="collabMeter" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-800 border border-neutral-700 transition-all duration-300 w-full sm:w-auto justify-center">
                     <span id="collabDot" class="w-2.5 h-2.5 rounded-full bg-neutral-500"></span>
                     <span id="collabText" class="text-neutral-400">Connecting...</span>
                 </div>
-                <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow">
+                <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow shrink-0">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Submit Document / Link
                 </button>
             </div>
         </div>
-    </header>
-
-    <!-- Main Content Grid -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- SUBMIT / EDIT SYSTEM (Hidden by Default) -->
         <section id="submitPanel" class="hidden bg-white border-2 border-pueo-yellow rounded-2xl shadow-lg p-6 mb-8 transition-all-300">
@@ -303,15 +301,15 @@
             const container = document.getElementById('collabMeter');
 
             if (status === 'live') {
-                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-emerald-800 text-emerald-400";
+                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-emerald-800 text-emerald-400 w-full sm:w-auto justify-center";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
                 text.innerText = "Live Cloud Sync Active";
             } else if (status === 'syncing') {
-                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-pueo-yellow text-pueo-yellow";
+                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-pueo-yellow text-pueo-yellow w-full sm:w-auto justify-center";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-pueo-yellow animate-bounce";
                 text.innerText = "Syncing Changes...";
             } else {
-                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-neutral-700 text-neutral-400";
+                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-neutral-700 text-neutral-400 w-full sm:w-auto justify-center";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-neutral-500";
                 text.innerText = "Reconnecting server...";
             }
