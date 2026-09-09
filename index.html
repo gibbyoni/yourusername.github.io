@@ -1,719 +1,617 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUEO Wireless - Centralized Document & How-to Hub</title>
-    <!-- Tailwind CSS for modern responsive layout -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for networking/document icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- LZ-String CDN for high-performance data compression -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroBrief | Aviation Resource Directory</title>
+  <style>
+    :root {
+      --page: #f5f5f2;
+      --surface: #ffffff;
+      --ink: #1d1d1b;
+      --muted: #6b6b66;
+      --line: #d9d9d3;
+      --focus: #155eef;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pueo: {
-                            black: '#111111',
-                            charcoal: '#1E1E1E',
-                            red: '#C62828', // Crimson Red
-                            redHover: '#B71C1C',
-                            yellow: '#FFB300', // Golden Yellow
-                            yellowHover: '#FFA000',
-                            grayBg: '#F5F5F5'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+      --planning: #f5a623;
+      --communications: #aa8ce5;
+      --weather: #7fc36b;
+      --notams: #df6c65;
+      --flight: #7ba7d9;
+      --tools: #7cc7c8;
+    }
 
-    <style>
-        /* Custom scrollbar styling for instructions box */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #1E1E1E;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #C62828; /* Tactical Red */
-            border-radius: 4px;
-            border: 2px solid #FFB300; /* Gold Outline */
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #B71C1C;
-        }
+    [data-theme="dark"] {
+      --page: #171717;
+      --surface: #242424;
+      --ink: #f4f4f1;
+      --muted: #b8b8b1;
+      --line: #4a4a46;
+      --focus: #83b4ff;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
 
-        /* Real-time event flash animation */
-        @keyframes collabFlash {
-            0% { box-shadow: 0 0 0 0px rgba(255, 179, 0, 0.7); transform: scale(1.02); }
-            50% { box-shadow: 0 0 20px 10px rgba(255, 179, 0, 0.4); transform: scale(1.02); }
-            100% { box-shadow: 0 0 0 0px rgba(255, 179, 0, 0); transform: scale(1.0); }
-        }
-        .flash-updated {
-            animation: collabFlash 2.5s ease-out;
-        }
+    * { box-sizing: border-box; }
 
-        /* Custom Radar Loading Animation */
-        .pueo-radar-loader {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #FFB300;
-            border-bottom-color: #C62828;
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: radarRotation 1s linear infinite;
-        }
-        @keyframes radarRotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--page);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
 
-        /* Alternative Animation Style (Sonar Pulse) */
-        .pueo-sonar-pulse {
-            width: 12px;
-            height: 12px;
-            background-color: #C62828;
-            border-radius: 50%;
-            display: inline-block;
-            position: relative;
-        }
-        .pueo-sonar-pulse::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background: #FFB300;
-            border-radius: 50%;
-            transform: scale(1);
-            animation: sonarPulse 1.2s infinite ease-out;
-        }
-        @keyframes sonarPulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(3); opacity: 0; }
-        }
+    button, input, textarea { font: inherit; }
 
-        .transition-all-300 {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-    </style>
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .site-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px 0 13px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: -0.8px;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .header-tools {
+      text-align: right;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .header-tools a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .header-tools a:hover { color: var(--focus); }
+
+    .header-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .clock {
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .utility-button {
+      padding: 4px 8px;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .utility-button:hover {
+      border-color: var(--focus);
+      color: var(--focus);
+    }
+
+    /* Search */
+    .search-area {
+      padding: 17px 0 13px;
+    }
+
+    .search {
+      width: 100%;
+      height: 39px;
+      padding: 8px 12px;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid #999;
+      border-radius: 3px;
+      outline: 0;
+      box-shadow: var(--shadow);
+    }
+
+    .search:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 18%, transparent);
+    }
+
+    .search-help {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* Category controls */
+    .category-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 4px 0 18px;
+    }
+
+    .category-button {
+      padding: 7px 11px;
+      color: #202020;
+      border: 1px solid rgba(0, 0, 0, 0.22);
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .category-button:hover,
+    .category-button.active {
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .planning { background: var(--planning); }
+    .communications { background: var(--communications); }
+    .weather { background: var(--weather); }
+    .notams { background: var(--notams); }
+    .flight { background: var(--flight); }
+    .tools { background: var(--tools); }
+
+    /* Directory */
+    .directory {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(145px, 1fr));
+      gap: 10px;
+      padding-bottom: 24px;
+    }
+
+    .directory-column {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .column-heading {
+      margin: 0;
+      padding: 9px 10px;
+      color: #1e1e1e;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .resource-list {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 6px;
+      list-style: none;
+      gap: 5px;
+    }
+
+    .resource-item.hidden { display: none; }
+
+    .resource-link {
+      display: block;
+      padding: 8px 7px;
+      color: var(--ink);
+      background: var(--page);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      text-decoration: none;
+      transition: border 0.12s ease, transform 0.12s ease;
+    }
+
+    .resource-link:hover {
+      border-color: var(--focus);
+      color: var(--focus);
+      transform: translateX(2px);
+    }
+
+    .resource-name {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .resource-description {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.25;
+    }
+
+    /* Scratchpad */
+    .scratchpad {
+      margin: 0 0 24px;
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .scratchpad-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .scratchpad-header strong { font-size: 13px; }
+
+    .save-status {
+      color: #287b45;
+      font-size: 11px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .scratchpad textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 8px;
+      color: var(--ink);
+      background: var(--page);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      resize: vertical;
+    }
+
+    .scratchpad-note {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    footer {
+      padding: 16px 0 22px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .empty-result {
+      display: none;
+      grid-column: 1 / -1;
+      padding: 20px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    @media (max-width: 1050px) {
+      .directory { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 680px) {
+      .container { width: min(100% - 20px, 1180px); }
+
+      .site-header {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .header-tools { text-align: left; }
+      .header-controls { justify-content: flex-start; }
+
+      .directory { grid-template-columns: repeat(2, 1fr); }
+      .search-help { flex-direction: column; gap: 3px; }
+    }
+
+    @media (max-width: 410px) {
+      .directory { grid-template-columns: 1fr; }
+      .brand { font-size: 22px; }
+    }
+  </style>
 </head>
-<body class="bg-neutral-100 text-neutral-800 min-h-screen flex flex-col font-sans">
 
-    <!-- Main Content Grid -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<body>
+  <div class="container">
+    <header class="site-header">
+      <div>
+        <h1 class="brand">
+          AeroBrief
+          <small>Aviation information and resource directory</small>
+        </h1>
+      </div>
 
-        <!-- Headerless Branding & Control Bar Container -->
-        <div class="bg-pueo-black text-white rounded-2xl border-b-4 border-pueo-yellow p-6 mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-md">
-            <div class="flex items-center gap-3">
-                <div class="bg-pueo-red p-2.5 rounded-lg shadow-md border border-pueo-yellow">
-                    <i class="fa-solid fa-tower-cell text-2xl text-pueo-yellow animate-pulse"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-black tracking-wider uppercase text-pueo-yellow">PUEO Wireless</h1>
-                    <p class="text-xs text-neutral-300 font-semibold tracking-wider font-mono">Centralized Document & How to</p>
-                </div>
-            </div>
-
-            <!-- Connection Indicator and Submit Action -->
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
-                <div id="collabMeter" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-800 border border-neutral-700 transition-all duration-300 w-full sm:w-auto justify-center">
-                    <span id="collabDot" class="w-2.5 h-2.5 rounded-full bg-neutral-500"></span>
-                    <span id="collabText" class="text-neutral-400">Connecting...</span>
-                </div>
-                <button onclick="toggleSubmitPanel()" class="w-full sm:w-auto bg-pueo-red hover:bg-pueo-redHover text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 border border-pueo-yellow shrink-0">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Submit Document / Link
-                </button>
-            </div>
+      <div class="header-tools">
+        <div>
+          Need a directory update?
+          <a href="mailto:directory-support@example.mil">Contact support</a>
         </div>
+        <div>
+          <a href="#backup-one">Backup directory</a>
+          &nbsp;|&nbsp;
+          <a href="#backup-two">Alternate directory</a>
+        </div>
+        <div class="header-controls">
+          <span class="clock">LOCAL <span id="local-clock">--:--:--</span></span>
+          <span class="clock">ZULU <span id="zulu-clock">--:--:--Z</span></span>
+          <button class="utility-button" id="theme-toggle" type="button">Dark</button>
+        </div>
+      </div>
+    </header>
 
-        <!-- SUBMIT / EDIT SYSTEM (Hidden by Default) -->
-        <section id="submitPanel" class="hidden bg-white border-2 border-pueo-yellow rounded-2xl shadow-lg p-6 mb-8 transition-all-300">
-            <div class="flex justify-between items-center mb-4 pb-2 border-b border-neutral-100">
-                <h2 id="formTitleText" class="text-lg font-bold text-pueo-black flex items-center gap-2">
-                    <i class="fa-solid fa-file-circle-plus text-pueo-red"></i> Upload Asset to Document Board
-                </h2>
-                <button onclick="clearForm(); toggleSubmitPanel();" class="text-neutral-400 hover:text-neutral-600">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
+    <section class="search-area">
+      <input
+        class="search"
+        id="resource-search"
+        type="search"
+        autocomplete="off"
+        placeholder="Type and press Enter to filter aviation resources..."
+        aria-label="Filter aviation resources"
+      />
+      <div class="search-help">
+        <span>Searches resource names, descriptions, and categories.</span>
+        <span id="result-count">36 resources available</span>
+      </div>
+    </section>
 
-            <!-- Upload Asset Form -->
-            <form id="docForm" onsubmit="addDocument(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200 mb-2">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-2">Resource Delivery Method</label>
-                    <div class="flex gap-6">
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="docType" value="link" checked onchange="toggleInputFields()" class="text-pueo-red focus:ring-pueo-red h-4 w-4">
-                            <span class="ml-2 text-sm text-neutral-700 font-medium">External Hyperlink / URL</span>
-                        </label>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="docType" value="pdf" onchange="toggleInputFields()" class="text-pueo-red focus:ring-pueo-red h-4 w-4">
-                            <span class="ml-2 text-sm text-neutral-700 font-medium">Direct PDF Upload (Downloadable)</span>
-                        </label>
-                    </div>
-                </div>
+    <nav class="category-bar" aria-label="Resource categories">
+      <button class="category-button planning active" data-filter="all">All Resources</button>
+      <button class="category-button planning" data-filter="planning">Preflight</button>
+      <button class="category-button notams" data-filter="notams">NOTAMs</button>
+      <button class="category-button flight" data-filter="flight">Flight Planning</button>
+      <button class="category-button weather" data-filter="weather">Weather</button>
+      <button class="category-button communications" data-filter="communications">Communications</button>
+      <button class="category-button tools" data-filter="tools">Tools</button>
+    </nav>
 
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Document / Resource Name</label>
-                    <input type="text" id="docTitle" required placeholder="e.g., MPA Worksheet, SIM Registration Guide" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Category Tab</label>
-                    <select id="docCategory" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm">
-                        <option value="In processing">In processing</option>
-                        <option value="MPA">MPA</option>
-                        <option value="LES">LES</option>
-                        <option value="operations">operations</option>
-                    </select>
-                </div>
-
-                <!-- Input Switching Elements -->
-                <div id="urlInputContainer" class="md:col-span-2">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Hyperlink / URL Address</label>
-                    <input type="url" id="docUrl" placeholder="https://drive.google.com/... or https://pueowireless.com" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm">
-                </div>
-
-                <div id="pdfInputContainer" class="md:col-span-2 hidden">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">Upload PDF Worksheet (Max 2.0MB)</label>
-                    <input type="file" id="docFile" accept=".pdf" class="w-full px-3 py-1.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200">
-                    <p class="text-xs text-neutral-500 mt-2 font-medium">
-                        <i class="fa-solid fa-bolt text-pueo-yellow mr-1"></i> PDF content is saved independently to optimize synchronization and completely eliminate server lag.
-                    </p>
-                    <p id="pdfHelpText" class="text-xs text-neutral-400 mt-1 hidden">*Keep empty to retain the previously uploaded PDF if editing.</p>
-                </div>
-
-                <!-- Advanced Detailed Instructions -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">How-to-Use Advanced Instructions</label>
-                    <textarea id="docDesc" rows="6" placeholder="Provide step-by-step instructions or checklists on how to fill out, process, or submit this specific document..." class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pueo-yellow text-sm font-normal leading-relaxed"></textarea>
-                </div>
-
-                <div class="md:col-span-2 flex justify-end gap-3 mt-2">
-                    <button type="button" onclick="clearForm()" class="px-4 py-2 border border-neutral-300 text-neutral-500 rounded-lg hover:bg-neutral-50 transition text-sm font-medium">Clear / Cancel</button>
-                    <button type="submit" id="formSubmitBtn" class="px-5 py-2 bg-pueo-red hover:bg-pueo-redHover text-white rounded-lg transition text-sm font-bold shadow-sm border border-pueo-yellow">Deploy to Dashboard</button>
-                </div>
-            </form>
-        </section>
-
-        <!-- Search and Navigation Tabs -->
-        <section class="mb-8 flex flex-col lg:flex-row justify-between items-center gap-4">
-            <div class="flex flex-wrap gap-2 w-full lg:w-auto overflow-x-auto pb-1" id="filterContainer">
-                <button onclick="filterCategory('All')" id="btn-All" class="filter-btn active bg-pueo-black text-pueo-yellow border-2 border-pueo-yellow px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0">
-                    All Materials
-                </button>
-                <button onclick="filterCategory('In processing')" id="btn-In-processing" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
-                    In processing
-                </button>
-                <button onclick="filterCategory('MPA')" id="btn-MPA" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
-                    MPA
-                </button>
-                <button onclick="filterCategory('LES')" id="btn-LES" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
-                    LES
-                </button>
-                <button onclick="filterCategory('operations')" id="btn-operations" class="filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0">
-                    operations
-                </button>
-            </div>
-
-            <!-- Document Search bar -->
-            <div class="relative w-full lg:w-80">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" id="searchInput" oninput="searchDocuments()" placeholder="Search documents & resources..." class="w-full pl-9 pr-4 py-2.5 border border-neutral-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pueo-red bg-white text-sm shadow-inner">
-            </div>
-        </section>
-
-        <!-- Document Grid -->
-        <section>
-            <div id="documentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Javascript populates cards here -->
-            </div>
-
-            <!-- Empty State Display -->
-            <div id="emptyState" class="hidden text-center py-16 bg-white border border-dashed border-neutral-300 rounded-2xl">
-                <i class="fa-solid fa-folder-open text-5xl text-neutral-300 mb-3 animate-pulse"></i>
-                <h3 class="text-lg font-bold text-neutral-600">Document Board is Empty</h3>
-                <p class="text-neutral-400 text-sm mt-1">Submit your first document link, checklist, or PDF worksheet to begin planning.</p>
-            </div>
-        </section>
-
+    <main class="directory" id="directory">
+      <p class="empty-result" id="empty-result">No matching resources found.</p>
     </main>
 
-    <!-- Dashboard Footer -->
-    <footer class="bg-pueo-black text-neutral-400 py-8 border-t-4 border-pueo-red text-xs mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>&copy; <span id="currentYear"></span> PUEO Wireless Centralized Portal. All Rights Reserved.</p>
-            <div class="flex gap-4">
-                <span id="queueBadge" class="text-neutral-500 font-semibold tracking-wider uppercase"><i class="fa-solid fa-shield-halved mr-1"></i> Decoupled Enterprise Server Active</span>
-            </div>
-        </div>
+    <section class="scratchpad">
+      <div class="scratchpad-header">
+        <strong>Personal Notes</strong>
+        <span class="save-status" id="save-status">Saved in this browser</span>
+      </div>
+      <textarea
+        id="scratchpad"
+        placeholder="Use for temporary, non-sensitive notes. Content remains in this browser profile."
+      ></textarea>
+      <p class="scratchpad-note">
+        Do not store sensitive or mission data in browser storage. Follow applicable handling and access policies.
+      </p>
+    </section>
+
+    <footer>
+      AeroBrief directory template · Static client-side prototype · Validate all links and access requirements before operational use.
     </footer>
+  </div>
 
-    <!-- Stable Decoupled Global Synchronization Script -->
-    <script>
-        // =========================================================================
-        // Decoupled Cloud Sync Engine
-        // =========================================================================
-        const pantryId = "7f61c360-6bdf-4eb9-a86d-6ee8bece9b80";
-        const indexBasket = "pueoDocs_Index_v3";
-        const indexUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${indexBasket}`;
+  <script>
+    const resources = [
+      {
+        group: "Preflight",
+        className: "planning",
+        category: "planning",
+        items: [
+          ["Flight Planning Checklist", "Pre-departure planning checklist", "#"],
+          ["Aircraft Status", "Review airworthiness and status inputs", "#"],
+          ["Crew Requirements", "Crew composition and qualification reference", "#"],
+          ["Mission Documents", "Required forms and planning documents", "#"],
+          ["Airfield Information", "Airfield data and operating considerations", "#"],
+          ["Hazard Review", "Operational risk and hazard review reference", "#"]
+        ]
+      },
+      {
+        group: "NOTAMs",
+        className: "notams",
+        category: "notams",
+        items: [
+          ["NOTAM Search", "Search current notices to air missions", "#"],
+          ["Flight Information Publications", "Terminal procedures and publications", "#"],
+          ["Temporary Flight Restrictions", "Current U.S. TFR information", "#"],
+          ["Airspace Advisories", "Airspace and special-use information", "#"],
+          ["International Notices", "International aviation notice reference", "#"],
+          ["Airport Notices", "Airport-specific notices and restrictions", "#"]
+        ]
+      },
+      {
+        group: "Flight Planning",
+        className: "flight",
+        category: "flight",
+        items: [
+          ["Route Planner", "Route development and flight-plan support", "#"],
+          ["Enroute Charts", "Enroute chart reference", "#"],
+          ["Terminal Procedures", "Departure, arrival, and approach procedures", "#"],
+          ["Fuel Planning", "Fuel planning and alternate-airfield tool", "#"],
+          ["Navigation Aids", "Navigation aid and fix lookup", "#"],
+          ["Coordinate Converter", "Latitude/longitude conversion reference", "#"]
+        ]
+      },
+      {
+        group: "Weather",
+        className: "weather",
+        category: "weather",
+        items: [
+          ["Aviation Weather", "METARs, TAFs, SIGMETs, and forecasts", "#"],
+          ["Weather Radar", "Regional radar imagery", "#"],
+          ["Satellite Imagery", "Satellite and cloud-cover products", "#"],
+          ["Winds Aloft", "Winds and temperatures aloft", "#"],
+          ["Hazardous Weather", "Convective and significant weather products", "#"],
+          ["Sunrise / Sunset", "Daylight planning reference", "#"]
+        ]
+      },
+      {
+        group: "Communications",
+        className: "communications",
+        category: "communications",
+        items: [
+          ["Operations Portal", "Operational coordination portal", "#"],
+          ["Webmail", "Authorized webmail access", "#"],
+          ["Team Chat", "Approved collaboration channel", "#"],
+          ["Frequency Reference", "Communications frequency reference", "#"],
+          ["Crew Scheduling", "Crew scheduling and currency resource", "#"],
+          ["Flight Following", "Mission execution monitoring reference", "#"]
+        ]
+      },
+      {
+        group: "Reference Tools",
+        className: "tools",
+        category: "tools",
+        items: [
+          ["Airfield Locator", "Search airfield and FBO information", "#"],
+          ["Time Reference", "Official local and UTC time reference", "#"],
+          ["Unit Converter", "Distance, speed, altitude, and temperature", "#"],
+          ["Risk Calculator", "Planning risk calculation aid", "#"],
+          ["Document Library", "Reference publications and forms", "#"],
+          ["Directory Support", "Request a resource update or correction", "#"]
+        ]
+      }
+    ];
 
-        let currentFilter = 'All';
-        let documents = []; // Stores lightweight metadata index list only
-        let editingId = null;
-        let isSyncing = false;
-        let syncInterval = null;
+    const directory = document.getElementById("directory");
+    const searchInput = document.getElementById("resource-search");
+    const resultCount = document.getElementById("result-count");
+    const emptyResult = document.getElementById("empty-result");
+    let activeCategory = "all";
 
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('currentYear').innerText = new Date().getFullYear();
+    function buildDirectory() {
+      resources.forEach((column) => {
+        const section = document.createElement("section");
+        section.className = "directory-column";
+        section.dataset.category = column.category;
 
-            // 1. Instantly render from local cache
-            const localDocs = localStorage.getItem('pueo_local_docs_index');
-            if (localDocs) {
-                try {
-                    documents = JSON.parse(localDocs);
-                    renderDocuments();
-                } catch(e) { console.error("Error reading cache:", e); }
-            }
+        section.innerHTML = `
+          <h2 class="column-heading ${column.className}">${column.group}</h2>
+          <ul class="resource-list">
+            ${column.items.map(([name, description, url]) => `
+              <li class="resource-item"
+                  data-search="${column.group} ${column.category} ${name} ${description}".toLowerCase()>
+                <a class="resource-link" href="${url}">
+                  <span class="resource-name">${name}</span>
+                  <span class="resource-description">${description}</span>
+                </a>
+              </li>
+            `).join("")}
+          </ul>
+        `;
 
-            // 2. Fetch the metadata list from the cloud immediately
-            fetchCloudIndex();
+        directory.appendChild(section);
+      });
 
-            // 3. Keep syncing metadata in background every 6 seconds (high speed, extremely low data size)
-            syncInterval = setInterval(fetchCloudIndex, 6000);
+      directory.appendChild(emptyResult);
+    }
+
+    function applyFilters() {
+      const query = searchInput.value.toLowerCase().trim();
+      const columns = document.querySelectorAll(".directory-column");
+      let totalVisible = 0;
+
+      columns.forEach((column) => {
+        const categoryMatch =
+          activeCategory === "all" || column.dataset.category === activeCategory;
+
+        let visibleInColumn = 0;
+
+        column.querySelectorAll(".resource-item").forEach((item) => {
+          const matchesText = item.dataset.search.includes(query);
+          const show = categoryMatch && matchesText;
+
+          item.classList.toggle("hidden", !show);
+          if (show) visibleInColumn++;
         });
 
-        // Set visual status in header
-        function setCollabState(status) {
-            const dot = document.getElementById('collabDot');
-            const text = document.getElementById('collabText');
-            const container = document.getElementById('collabMeter');
+        column.style.display = visibleInColumn > 0 ? "block" : "none";
+        totalVisible += visibleInColumn;
+      });
 
-            if (status === 'live') {
-                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-emerald-800 text-emerald-400 w-full sm:w-auto justify-center";
-                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                text.innerText = "Live Cloud Sync Active";
-            } else if (status === 'syncing') {
-                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-pueo-yellow text-pueo-yellow w-full sm:w-auto justify-center";
-                dot.className = "w-2.5 h-2.5 rounded-full bg-pueo-yellow animate-bounce";
-                text.innerText = "Syncing Changes...";
-            } else {
-                container.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-neutral-900 border border-neutral-700 text-neutral-400 w-full sm:w-auto justify-center";
-                dot.className = "w-2.5 h-2.5 rounded-full bg-neutral-500";
-                text.innerText = "Reconnecting server...";
-            }
-        }
+      resultCount.textContent = `${totalVisible} resource${totalVisible === 1 ? "" : "s"} available`;
+      emptyResult.style.display = totalVisible === 0 ? "block" : "none";
+    }
 
-        // Fetch index metadata only (extremely fast and lightweight!)
-        async function fetchCloudIndex() {
-            if (isSyncing) return;
-            isSyncing = true;
+    document.querySelectorAll(".category-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeCategory = button.dataset.filter;
 
-            try {
-                const res = await fetch(indexUrl);
-                if (res.ok) {
-                    const data = await res.json();
-                    let cloudDocs = [];
-                    if (data && data.documents) {
-                        cloudDocs = data.documents;
-                    }
+        document.querySelectorAll(".category-button").forEach((item) => {
+          item.classList.toggle("active", item === button);
+        });
 
-                    // Track updates
-                    const changedDocIds = cloudDocs.filter(newDoc => {
-                        const oldDoc = documents.find(d => d.id === newDoc.id);
-                        return !oldDoc || JSON.stringify(oldDoc) !== JSON.stringify(newDoc);
-                    }).map(d => d.id);
+        applyFilters();
+      });
+    });
 
-                    if (JSON.stringify(cloudDocs) !== JSON.stringify(documents)) {
-                        documents = cloudDocs;
-                        localStorage.setItem('pueo_local_docs_index', JSON.stringify(documents));
-                        renderDocuments(changedDocIds);
-                    }
-                    setCollabState('live');
-                    document.getElementById('queueBadge').innerHTML = '<i class="fa-solid fa-shield-halved mr-1 text-emerald-400"></i> Operations Document Hub (Connected)';
-                } else if (res.status === 400 || res.status === 404) {
-                    // Initial database launch
-                    setCollabState('live');
-                } else {
-                    throw new Error("HTTP Status: " + res.status);
-                }
-            } catch (err) {
-                console.warn("Retrying database handshake:", err);
-                setCollabState('connecting');
-            } finally {
-                isSyncing = false;
-            }
-        }
+    searchInput.addEventListener("input", applyFilters);
 
-        // Form Submit Handler
-        async function addDocument(e) {
-            e.preventDefault();
-            const title = document.getElementById('docTitle').value.trim();
-            const category = document.getElementById('docCategory').value;
-            const desc = document.getElementById('docDesc').value.trim();
-            const type = document.querySelector('input[name="docType"]:checked').value;
+    function updateClocks() {
+      const now = new Date();
+      const local = now.toLocaleTimeString([], { hour12: false });
+      const zulu = now.toISOString().slice(11, 19) + "Z";
 
-            let targetDoc;
-            let tempPdfData = null;
+      document.getElementById("local-clock").textContent = local;
+      document.getElementById("zulu-clock").textContent = zulu;
+    }
 
-            if (editingId) {
-                const original = documents.find(doc => doc.id === editingId);
-                targetDoc = { 
-                    ...original, 
-                    title, 
-                    category, 
-                    desc, 
-                    type 
-                };
-            } else {
-                const id = "doc_" + Date.now() + "_" + Math.random().toString(36).substring(2, 5);
-                const addedOn = new Date().toISOString().split('T')[0];
-                targetDoc = { id, title, category, desc, addedOn, type };
-            }
+    const themeButton = document.getElementById("theme-toggle");
+    const savedTheme = localStorage.getItem("aerobrief_theme") || "light";
 
-            if (type === 'pdf') {
-                const fileInput = document.getElementById('docFile');
-                if (fileInput.files.length === 0) {
-                    if (editingId && documents.find(d => d.id === editingId).type === 'pdf') {
-                        // Reusing previously uploaded PDF, index metadata updates directly
-                        delete targetDoc.url;
-                        saveDocumentFinal(targetDoc, null);
-                    } else {
-                        alert("Please select a PDF file to upload!");
-                        return;
-                    }
-                } else {
-                    const file = fileInput.files[0];
-                    if (file.size > 2048 * 1024) { // Max 2.0MB
-                        alert("PDF document is too large! Please choose a file under 2.0MB, or link via Google Drive/OneDrive.");
-                        return;
-                    }
-                    setCollabState('syncing');
-                    const reader = new FileReader();
-                    reader.onload = async function(event) {
-                        tempPdfData = event.target.result;
-                        delete targetDoc.url;
-                        saveDocumentFinal(targetDoc, tempPdfData);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            } else {
-                targetDoc.url = document.getElementById('docUrl').value.trim();
-                saveDocumentFinal(targetDoc, null);
-            }
-        }
+    function setTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      themeButton.textContent = theme === "dark" ? "Light" : "Dark";
+      localStorage.setItem("aerobrief_theme", theme);
+    }
 
-        // Local execution followed by cloud sync
-        async function saveDocumentFinal(metadata, pdfData) {
-            if (editingId) {
-                const index = documents.findIndex(d => d.id === editingId);
-                if (index !== -1) {
-                    documents[index] = metadata;
-                }
-            } else {
-                documents.unshift(metadata);
-            }
+    themeButton.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme");
+      setTheme(current === "dark" ? "light" : "dark");
+    });
 
-            // Immediately display the UI change locally for zero-latency experience
-            renderDocuments();
-            clearForm();
-            toggleSubmitPanel();
+    const scratchpad = document.getElementById("scratchpad");
+    const saveStatus = document.getElementById("save-status");
+    let saveTimer;
 
-            try {
-                // 1. If a new PDF file was provided, upload it to its own isolated basket
-                if (pdfData) {
-                    const pdfBasketName = `pueo_PDF_${metadata.id}`;
-                    const pdfBasketUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${pdfBasketName}`;
-                    const compressedPdf = LZString.compressToUTF16(pdfData);
+    scratchpad.value = localStorage.getItem("aerobrief_notes") || "";
 
-                    await fetch(pdfBasketUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ pdfBinary: compressedPdf })
-                    });
-                }
+    scratchpad.addEventListener("input", () => {
+      localStorage.setItem("aerobrief_notes", scratchpad.value);
+      saveStatus.style.opacity = "1";
 
-                // 2. Upload the updated index list
-                await pushIndexToCloud(documents);
-            } catch (err) {
-                console.error("Cloud push failed:", err);
-                setCollabState('connecting');
-            }
-        }
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        saveStatus.style.opacity = "0";
+      }, 1400);
+    });
 
-        // Push index array back to Pantry
-        async function pushIndexToCloud(indexList) {
-            setCollabState('syncing');
-            try {
-                const res = await fetch(indexUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ documents: indexList })
-                });
-
-                if (!res.ok) throw new Error("Cloud push failed");
-
-                setCollabState('live');
-                localStorage.setItem('pueo_local_docs_index', JSON.stringify(indexList));
-            } catch (err) {
-                console.error("Index sync error:", err);
-                setCollabState('connecting');
-            }
-        }
-
-        // Trigger editing fields
-        function editDocument(id) {
-            const doc = documents.find(d => d.id === id);
-            if (!doc) return;
-
-            editingId = id;
-
-            const panel = document.getElementById('submitPanel');
-            panel.classList.remove('hidden');
-            panel.scrollIntoView({ behavior: 'smooth' });
-
-            document.getElementById('docTitle').value = doc.title;
-            document.getElementById('docCategory').value = doc.category;
-            document.getElementById('docDesc').value = doc.desc || '';
-
-            const radioLink = document.querySelector('input[name="docType"][value="link"]');
-            const radioPdf = document.querySelector('input[name="docType"][value="pdf"]');
-
-            if (doc.type === 'pdf') {
-                radioPdf.checked = true;
-                document.getElementById('docFile').value = ''; 
-                document.getElementById('pdfHelpText').classList.remove('hidden');
-            } else {
-                radioLink.checked = true;
-                document.getElementById('docUrl').value = doc.url || '';
-                document.getElementById('pdfHelpText').classList.add('hidden');
-            }
-
-            toggleInputFields();
-
-            document.getElementById('formTitleText').innerHTML = '<i class="fa-solid fa-pen-to-square text-pueo-yellow"></i> Modifying Document: ' + doc.title;
-            document.getElementById('formSubmitBtn').innerText = "Update Document";
-        }
-
-        // Delete a document
-        async function deleteDocument(id) {
-            if (confirm('Permanently remove this resource? This will delete it for everyone globally.')) {
-                documents = documents.filter(doc => doc.id !== id);
-                if (editingId === id) {
-                    clearForm();
-                }
-                renderDocuments();
-                await pushIndexToCloud(documents);
-
-                // Dynamically purge the isolated PDF basket in the background to clean up space
-                try {
-                    const pdfBasketUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/pueo_PDF_${id}`;
-                    fetch(pdfBasketUrl, { method: 'DELETE' });
-                } catch(e) {}
-            }
-        }
-
-        // ON-DEMAND PDF Downloader Engine with Custom Radar Loaders
-        async function downloadPdf(id, title, btnElement) {
-            const originalHtml = btnElement.innerHTML;
-            btnElement.disabled = true;
-
-            // Render the customizable tactical loader
-            btnElement.innerHTML = 'Retrieving <span class="pueo-radar-loader ml-2 mr-1 align-middle"></span>';
-
-            try {
-                const pdfBasketName = `pueo_PDF_${id}`;
-                const pdfBasketUrl = `https://api.pantry.cloud/apiv1/pantry/${pantryId}/basket/${pdfBasketName}`;
-
-                const res = await fetch(pdfBasketUrl);
-                if (!res.ok) throw new Error("Could not pull PDF binary from cloud");
-
-                const data = await res.json();
-                if (!data || !data.pdfBinary) throw new Error("No PDF binary available in database basket");
-
-                // Decompress payload
-                const decompressed = LZString.decompressFromUTF16(data.pdfBinary);
-
-                // Triggers direct browser download pipeline
-                const parts = decompressed.split(',');
-                const mime = parts[0].match(/:(.*?);/)[1];
-                const b64Data = parts[1];
-
-                const byteCharacters = atob(b64Data);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], { type: mime });
-                const downloadUrl = URL.createObjectURL(blob);
-
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.download = title.replace(/[^a-zA-Z0-9-_]/g, '_') + ".pdf";
-                link.click();
-                URL.revokeObjectURL(downloadUrl);
-            } catch(e) {
-                console.error("Download pipeline failed:", e);
-                alert("Unable to compile PDF file. Ensure the file has been successfully uploaded on your primary device, or try re-uploading.");
-            } finally {
-                btnElement.disabled = false;
-                btnElement.innerHTML = originalHtml;
-            }
-        }
-
-        // Render card layouts
-        function renderDocuments(flashIds = []) {
-            const grid = document.getElementById('documentsGrid');
-            const emptyState = document.getElementById('emptyState');
-            const searchVal = document.getElementById('searchInput').value.toLowerCase();
-            grid.innerHTML = '';
-
-            const filtered = documents.filter(doc => {
-                const matchesCategory = currentFilter === 'All' || doc.category === currentFilter;
-                const matchesSearch = doc.title.toLowerCase().includes(searchVal) || 
-                                      (doc.desc && doc.desc.toLowerCase().includes(searchVal)) || 
-                                      doc.category.toLowerCase().includes(searchVal);
-                return matchesCategory && matchesSearch;
-            });
-
-            if (filtered.length === 0) {
-                emptyState.classList.remove('hidden');
-                return;
-            } else {
-                emptyState.classList.add('hidden');
-            }
-
-            filtered.forEach(doc => {
-                const categoryColors = getCategoryColors(doc.category);
-                const card = document.createElement('div');
-
-                const isUpdated = flashIds.includes(doc.id);
-                const flashClass = isUpdated ? 'flash-updated' : '';
-
-                card.className = "bg-white border border-neutral-200 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group border-t-4 " + categoryColors.borderTop + " " + flashClass;
-
-                const isPdf = doc.type === 'pdf';
-                const actionButton = isPdf 
-                    ? '<button onclick="downloadPdf(\'' + doc.id + '\', \'' + doc.title + '\', this)" class="bg-white hover:bg-pueo-red text-pueo-red hover:text-white border border-neutral-200 hover:border-pueo-red px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">Download PDF <i class="fa-solid fa-file-pdf text-xs"></i></button>'
-                    : '<a href="' + doc.url + '" target="_blank" rel="noopener noreferrer" class="bg-white hover:bg-pueo-yellow text-pueo-black hover:text-black border border-neutral-200 hover:border-pueo-yellow px-3.5 py-1.5 rounded-md font-bold transition flex items-center gap-1">Open Hyperlink <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>';
-
-                card.innerHTML = `
-                    <div class="p-5 flex-grow flex flex-col">
-                        <div class="flex justify-between items-start gap-2 mb-3">
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${categoryColors.badge}">
-                                ${doc.category}
-                            </span>
-                            <div class="flex gap-1">
-                                <button onclick="editDocument('${doc.id}')" class="text-neutral-400 hover:text-pueo-yellow transition duration-150 p-1" title="Edit Item">
-                                    <i class="fa-solid fa-pen-to-square text-sm"></i>
-                                </button>
-                                <button onclick="deleteDocument('${doc.id}')" class="text-neutral-400 hover:text-pueo-red transition duration-150 p-1" title="Delete Item">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <h3 class="font-bold text-neutral-800 text-base mb-2 group-hover:text-pueo-red transition flex items-center gap-1.5">
-                            ${isPdf ? '<i class="fa-solid fa-file-pdf text-pueo-red"></i>' : '<i class="fa-solid fa-link text-pueo-yellow"></i>'}
-                            ${doc.title}
-                        </h3>
-
-                        <!-- Instructions box with custom dark styling and scrollbars -->
-                        <div class="mt-2 bg-neutral-900 p-3 rounded border border-neutral-800 flex-grow max-h-48 overflow-y-auto custom-scrollbar">
-                            <h4 class="text-[9px]/normal font-bold text-pueo-yellow uppercase tracking-wider mb-1">Advanced Instructions</h4>
-                            <p class="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed">${doc.desc || 'No instructions provided.'}</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-neutral-50 px-5 py-3.5 border-t border-neutral-100 flex justify-between items-center text-xs">
-                        <span class="text-neutral-400 font-medium">Added: ${doc.addedOn}</span>
-                        ${actionButton}
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // Category styles helper
-        function getCategoryColors(category) {
-            switch(category) {
-                case 'In processing': 
-                    return { 
-                        badge: 'bg-amber-50 text-amber-800 border border-amber-300', 
-                        borderTop: 'border-pueo-yellow' 
-                    };
-                case 'MPA': 
-                    return { 
-                        badge: 'bg-red-50 text-pueo-red border border-red-200', 
-                        borderTop: 'border-pueo-red' 
-                    };
-                case 'LES': 
-                    return { 
-                        badge: 'bg-neutral-950 text-pueo-yellow border border-pueo-black', 
-                        borderTop: 'border-pueo-black' 
-                    };
-                case 'operations': 
-                    return { 
-                        badge: 'bg-neutral-100 text-neutral-800 border border-neutral-400', 
-                        borderTop: 'border-neutral-500' 
-                    };
-                default: 
-                    return { 
-                        badge: 'bg-neutral-100 text-neutral-700', 
-                        borderTop: 'border-neutral-300' 
-                    };
-            }
-        }
-
-        function filterCategory(category) {
-            currentFilter = category;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = "filter-btn bg-white hover:bg-neutral-200 text-neutral-700 border border-neutral-300 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0";
-            });
-
-            const sanitizedId = category.replace(/\s+/g, '-');
-            const activeBtn = document.getElementById('btn-' + sanitizedId);
-            if (activeBtn) {
-                activeBtn.className = "filter-btn active bg-pueo-black text-pueo-yellow border-2 border-pueo-yellow px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm shrink-0";
-            }
-            renderDocuments();
-        }
-
-        function toggleInputFields() {
-            const type = document.querySelector('input[name="docType"]:checked').value;
-            const urlContainer = document.getElementById('urlInputContainer');
-            const pdfContainer = document.getElementById('pdfInputContainer');
-            if (type === 'link') {
-                urlContainer.classList.remove('hidden');
-                pdfContainer.classList.add('hidden');
-            } else {
-                urlContainer.classList.add('hidden');
-                pdfContainer.classList.remove('hidden');
-            }
-        }
-
-        function searchDocuments() { renderDocuments(); }
-        function toggleSubmitPanel() { document.getElementById('submitPanel').classList.toggle('hidden'); }
-
-        function clearForm() {
-            document.getElementById('docForm').reset();
-            editingId = null;
-            document.getElementById('formTitleText').innerHTML = '<i class="fa-solid fa-file-circle-plus text-pueo-red"></i> Upload Asset to Document Board';
-            document.getElementById('formSubmitBtn').innerText = "Deploy to Dashboard";
-            document.getElementById('pdfHelpText').classList.add('hidden');
-            toggleInputFields();
-        }
-    </script>
+    buildDirectory();
+    setTheme(savedTheme);
+    updateClocks();
+    setInterval(updateClocks, 1000);
+  </script>
 </body>
 </html>
